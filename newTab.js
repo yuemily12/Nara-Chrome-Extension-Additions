@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="text" value="${task.text}" class="task-text" />
         ${
           task.text && !task.completed
-            ? `<button class="delete-task">Delete</button>`
+            ? `<button class="delete-task"></button>`
             : ""
         }
       `;
@@ -207,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tasks[index].text.trim() !== "" && !tasks[index].completed) {
           const deleteButton = document.createElement("button");
           deleteButton.className = "delete-task";
-          deleteButton.textContent = "Delete";
           deleteButton.addEventListener("click", () => {
             tasks.splice(index, 1); // Remove the task
 

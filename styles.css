@@ -112,20 +112,6 @@ input[type="checkbox"] {
     cursor: pointer;
 }
 
-.delete-task {
-    background: rgba(255, 87, 87, 0.1);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    color: #FF5757;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.delete-task:hover {
-    background: rgba(255, 87, 87, 0.2);
-}
-
 /* Sortable classes */
 .sortable-ghost {
     opacity: 0.4;
@@ -139,4 +125,43 @@ input[type="checkbox"] {
 /* Hide elements */
 .hidden {
     display: none !important;
+}
+
+
+
+.delete-task {
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    position: relative;
+}
+
+.delete-task::before,
+.delete-task::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 16px;
+    background-color: currentColor;
+    top: 50%;
+    left: 50%;
+    transition: all 0.3s ease;
+}
+
+.delete-task::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.delete-task::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.delete-task:hover {
+    color: #6B7280;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
 }
