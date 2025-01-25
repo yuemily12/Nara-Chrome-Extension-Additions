@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Background images
   const backgrounds = [
     "assets/original.jpeg",
-    "assets/img1.jpg",
+    "assets/img1.jpeg",
     "assets/img2.jpg",
     "assets/img3.jpg",
     "assets/img4.jpg",
@@ -72,15 +72,18 @@ document.addEventListener("DOMContentLoaded", () => {
         })`;
         tasksContainer.classList.add("hidden");
         categoriesContainer.classList.add("hidden");
+        document.getElementById("welcome-message").classList.add("hidden");
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
+          document.getElementById("welcome-message").classList.add("hidden");
         }
         document.body.style.backgroundImage = `url(${backgrounds[backgroundIndex]})`;
       }
     } else {
       categoriesContainer.classList.remove("hidden");
+      document.getElementById("welcome-message").classList.remove("hidden");
       document.body.style.backgroundImage = `url(${backgrounds[0]})`;
     }
   });
@@ -115,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       categoriesContainer.classList.add("hidden");
+      document.getElementById("welcome-message").classList.add("hidden");
     }
   });
 
@@ -249,6 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
           })`;
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
+          document.getElementById("welcome-message").classList.add("hidden");
         } else {
           document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
         }
@@ -419,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
           })`;
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
+          document.getElementById("welcome-message").classList.add("hidden");
         } else {
           document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
         }

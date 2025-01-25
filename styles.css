@@ -15,6 +15,36 @@ body {
     overflow: hidden;
 }
 
+/* Welcome message */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+
+    to {
+        opacity: 0.95;
+        transform: translate(-50%, -50%);
+    }
+}
+
+#welcome-message {
+    position: fixed;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 3rem;
+    font-weight: 400;
+    text-align: center;
+    font-family: 'Permanent Marker', cursive;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.95;
+    animation: fadeIn 1s ease-out forwards;
+}
+
 /* Categories container */
 #categories-container {
     position: fixed;
