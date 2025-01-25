@@ -3,16 +3,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const tasksContainer = document.getElementById("tasks-container");
   const taskList = document.getElementById("task-list");
 
-  // Background images
-  const backgrounds = [
-    "assets/original.jpeg",
-    "assets/img1.jpeg",
-    "assets/img2.jpg",
-    "assets/img3.jpg",
-    "assets/img4.jpg",
-    "assets/img5.jpg",
-    "assets/final.jpg",
-  ];
+  // Initial background image with 5 deers
+  const initialBackground = "assets/original.jpg";
+
+  // Background images for each category
+  const backgroundSets = {
+    daily: [
+      "assets/A.jpg", // Category origin photo (shown when no tasks are checked)
+      "assets/A1.jpg", // Shown after 1 task is checked
+      "assets/A2.jpg", // Shown after 2 tasks are checked
+      "assets/A3.jpg", // Shown after 3 tasks are checked
+      "assets/A4.jpg", // Shown after 4 tasks are checked
+      "assets/A5.jpg", // Shown after all 5 tasks are checked
+    ],
+    home: [
+      "assets/B.jpg",
+      "assets/B1.jpg",
+      "assets/B2.jpg",
+      "assets/B3.jpg",
+      "assets/B4.jpg",
+      "assets/B5.jpg",
+    ],
+    pet: [
+      "assets/C.jpg",
+      "assets/C1.jpg",
+      "assets/C2.jpg",
+      "assets/C3.jpg",
+      "assets/C4.jpg",
+      "assets/C5.jpg",
+    ],
+    friends: [
+      "assets/D.jpg",
+      "assets/D1.jpg",
+      "assets/D2.jpg",
+      "assets/D3.jpg",
+      "assets/D4.jpg",
+      "assets/D5.jpg",
+    ],
+    mind: [
+      "assets/E.jpg",
+      "assets/E1.jpg",
+      "assets/E2.jpg",
+      "assets/E3.jpg",
+      "assets/E4.jpg",
+      "assets/E5.jpg",
+    ],
+  };
 
   // Predefined hardcoded tasks
   const hardcodedTasks = {
@@ -68,7 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (isFinalImage) {
         document.body.style.backgroundImage = `url(${
-          backgrounds[backgrounds.length - 1]
+          backgroundSets[selectedCategory][
+            backgroundSets[selectedCategory].length - 1
+          ]
         })`;
         tasksContainer.classList.add("hidden");
         categoriesContainer.classList.add("hidden");
@@ -79,12 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
           categoriesContainer.classList.add("hidden");
           document.getElementById("welcome-message").classList.add("hidden");
         }
-        document.body.style.backgroundImage = `url(${backgrounds[backgroundIndex]})`;
+        document.body.style.backgroundImage = `url(${backgroundSets[selectedCategory][backgroundIndex]})`;
       }
     } else {
       categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
-      document.body.style.backgroundImage = `url(${backgrounds[0]})`;
+      document.body.style.backgroundImage = `url(${initialBackground})`;
     }
   });
 
@@ -108,12 +146,14 @@ document.addEventListener("DOMContentLoaded", () => {
         chrome.storage.local.set({
           state: {
             tasks,
-            backgroundIndex: 0,
+            backgroundIndex: 0, // Start with the category's origin photo (e.g., A.jpg)
             categoriesHidden: true,
             isFinalImage: false,
             selectedCategory: category,
           },
         });
+        // Set the background to the category's origin photo (e.g., A.jpg)
+        document.body.style.backgroundImage = `url(${backgroundSets[category][0]})`;
         renderTasks(tasks, 0, category);
       }
 
@@ -141,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function updateBackgroundState(tasks) {
+  function updateBackgroundState(tasks, selectedCategory) {
     const completedTasks = tasks.filter(
       (task) => task.completed && task.text.trim() !== ""
     ).length;
@@ -153,10 +193,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let isFinalImage = false;
 
     if (completedTasks === totalTasksWithContent && totalTasksWithContent > 0) {
-      backgroundIndex = backgrounds.length - 1;
+      backgroundIndex = backgroundSets[selectedCategory].length - 1;
       isFinalImage = true;
     } else {
-      backgroundIndex = Math.min(completedTasks, backgrounds.length - 1);
+      backgroundIndex = Math.min(
+        completedTasks,
+        backgroundSets[selectedCategory].length - 1
+      );
       isFinalImage = false;
     }
 
@@ -245,17 +288,17 @@ document.addEventListener("DOMContentLoaded", () => {
         tasks.splice(newPosition, 0, movedTask);
 
         const { backgroundIndex: newBackgroundIndex, isFinalImage } =
-          updateBackgroundState(tasks);
+          updateBackgroundState(tasks, category);
 
         if (isFinalImage) {
           document.body.style.backgroundImage = `url(${
-            backgrounds[backgrounds.length - 1]
+            backgroundSets[category][backgroundSets[category].length - 1]
           })`;
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
           document.getElementById("welcome-message").classList.add("hidden");
         } else {
-          document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
+          document.body.style.backgroundImage = `url(${backgroundSets[category][newBackgroundIndex]})`;
         }
 
         // Save state
@@ -322,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             const { backgroundIndex: newBackgroundIndex, isFinalImage } =
-              updateBackgroundState(tasks);
+              updateBackgroundState(tasks, category);
 
             chrome.storage.local.set({
               state: {
@@ -361,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           const { backgroundIndex: newBackgroundIndex, isFinalImage } =
-            updateBackgroundState(tasks);
+            updateBackgroundState(tasks, category);
 
           chrome.storage.local.set({
             state: {
@@ -416,17 +459,17 @@ document.addEventListener("DOMContentLoaded", () => {
         tasks.splice(evt.newIndex, 0, movedTask);
 
         const { backgroundIndex: newBackgroundIndex, isFinalImage } =
-          updateBackgroundState(tasks);
+          updateBackgroundState(tasks, category);
 
         if (isFinalImage) {
           document.body.style.backgroundImage = `url(${
-            backgrounds[backgrounds.length - 1]
+            backgroundSets[category][backgroundSets[category].length - 1]
           })`;
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
           document.getElementById("welcome-message").classList.add("hidden");
         } else {
-          document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
+          document.body.style.backgroundImage = `url(${backgroundSets[category][newBackgroundIndex]})`;
         }
 
         chrome.storage.local.set({
