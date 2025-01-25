@@ -203,8 +203,15 @@ document.addEventListener("DOMContentLoaded", () => {
       taskTextInput.addEventListener("change", () => {
         tasks[index].text = taskTextInput.value;
 
-        // If content is added to a new bar, add a delete button
-        if (tasks[index].text.trim() !== "" && !tasks[index].completed) {
+        // Check if the task already has a delete button
+        const existingDeleteButton = taskItem.querySelector(".delete-task");
+
+        // If content is added to a new bar and no delete button exists, add one
+        if (
+          tasks[index].text.trim() !== "" &&
+          !tasks[index].completed &&
+          !existingDeleteButton
+        ) {
           const deleteButton = document.createElement("button");
           deleteButton.className = "delete-task";
           deleteButton.textContent = "Delete";
