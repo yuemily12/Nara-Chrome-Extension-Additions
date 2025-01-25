@@ -143,6 +143,43 @@ document.addEventListener("DOMContentLoaded", () => {
         <button class="move-task">Move</button>
       `;
 
+      taskItem.draggable = true; // Make task draggable
+      taskItem.dataset.index = index; // Store task index for drag-and-drop
+
+      // Drag-and-drop event handlers
+      taskItem.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", index);
+      });
+
+      taskItem.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+
+      taskItem.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const draggedIndex = e.dataTransfer.getData("text/plain");
+        const targetIndex = taskItem.dataset.index;
+
+        // Swap tasks in the array
+        [tasks[draggedIndex], tasks[targetIndex]] = [
+          tasks[targetIndex],
+          tasks[draggedIndex],
+        ];
+
+        // Save the updated order
+        chrome.storage.local.set({
+          state: {
+            tasks,
+            backgroundIndex,
+            categoriesHidden: true,
+            isFinalImage: false,
+          },
+        });
+
+        // Re-render the task list
+        renderTasks(tasks, backgroundIndex);
+      });
+
       // Handle task completion
       const checkbox = taskItem.querySelector("input");
       checkbox.addEventListener("change", () => {
