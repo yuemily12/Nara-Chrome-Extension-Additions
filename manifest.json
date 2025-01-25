@@ -13,5 +13,11 @@
   "icons": {
     "48": "assets/icon48.png",
     "128": "assets/icon128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/Sortable.min.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

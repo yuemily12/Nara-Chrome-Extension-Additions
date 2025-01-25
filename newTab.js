@@ -136,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tasks.forEach((task, index) => {
       const taskItem = document.createElement("li");
+      taskItem.classList.add("draggable");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
         <input type="text" value="${task.text}" class="task-text" />
@@ -145,6 +146,9 @@ document.addEventListener("DOMContentLoaded", () => {
             : ""
         }
       `;
+
+      taskItem.draggable = true; // Make task draggable
+      taskItem.dataset.index = index; // Store task index for drag-and-drop
 
       // Handle task completion
       const checkbox = taskItem.querySelector("input[type='checkbox']");
@@ -266,6 +270,28 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       taskList.appendChild(taskItem);
+    });
+
+    // Initialize SortableJS
+    new Sortable(taskList, {
+      animation: 600, // Animation speed
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)", // Smooth easing effect
+      ghostClass: "sortable-ghost", // Class for the placeholder
+      chosenClass: "sortable-chosen", // Class for the chosen item
+
+      onUpdate: (evt) => {
+        const [movedTask] = tasks.splice(evt.oldIndex, 1);
+        tasks.splice(evt.newIndex, 0, movedTask);
+
+        chrome.storage.local.set({
+          state: {
+            tasks,
+            backgroundIndex,
+            categoriesHidden: true,
+            isFinalImage: false,
+          },
+        });
+      },
     });
 
     tasksContainer.classList.remove("hidden"); // Show tasks

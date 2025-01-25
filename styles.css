@@ -68,3 +68,28 @@ button.move-task {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.draggable {
+    cursor: grab;
+    transition: transform 0.2s ease-in-out;
+}
+
+.draggable:hover {
+    background-color: #f8f9fa;
+}
+
+.draggable.dragging {
+    opacity: 0.6;
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: #e9ecef;
+    border: dashed 1px #dee2e6;
+}
+
+.sortable-chosen {
+    background-color: #dee2e6;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
