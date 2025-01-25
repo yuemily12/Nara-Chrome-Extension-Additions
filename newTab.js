@@ -56,8 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load saved state from chrome.storage.local
   chrome.storage.local.get("state", (data) => {
     if (data.state) {
-      const { tasks, backgroundIndex, categoriesHidden, isFinalImage } =
-        data.state;
+      const {
+        tasks,
+        backgroundIndex,
+        categoriesHidden,
+        isFinalImage,
+        selectedCategory,
+      } = data.state;
 
       if (isFinalImage) {
         // If all tasks are completed, show the final image and hide categories
@@ -68,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         categoriesContainer.classList.add("hidden");
       } else {
         // Restore tasks, background, and categories visibility
-        renderTasks(tasks, backgroundIndex);
+        renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
         }
@@ -104,9 +109,10 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundIndex: 0,
             categoriesHidden: true,
             isFinalImage: false,
+            selectedCategory: category, // Add the selected category here
           },
         });
-        renderTasks(tasks, 0);
+        renderTasks(tasks, 0, category);
       }
 
       categoriesContainer.classList.add("hidden"); // Hide categories
@@ -125,14 +131,35 @@ document.addEventListener("DOMContentLoaded", () => {
           backgroundIndex: 0,
           categoriesHidden: true,
           isFinalImage: false,
+          selectedCategory: "others", // Add the selected category here
         },
       });
-      renderTasks(tasks, 0);
+      renderTasks(tasks, 0, "self");
     }
   });
 
-  function renderTasks(tasks, backgroundIndex) {
-    taskList.innerHTML = ""; // Clear existing tasks
+  function renderTasks(tasks, backgroundIndex, category) {
+    const tasksHeader =
+      document.getElementById("tasks-header") || document.createElement("div");
+    tasksHeader.id = "tasks-header";
+    tasksHeader.innerHTML = `
+      <h1 class="task-title">Take care of your ${category}</h1>
+      <p class="task-subtitle">Do these small and simple tasks to start your day</p>
+    `;
+
+    // If this is the first render, set up the container structure
+    if (!document.getElementById("tasks-header")) {
+      tasksContainer.innerHTML = "";
+      tasksContainer.appendChild(tasksHeader);
+
+      const newTaskList = document.createElement("ul");
+      newTaskList.id = "task-list";
+      tasksContainer.appendChild(newTaskList);
+    }
+
+    // Now we can safely get the task list reference
+    const taskListElement = document.getElementById("task-list");
+    taskListElement.innerHTML = ""; // Clear existing tasks
 
     tasks.forEach((task, index) => {
       const taskItem = document.createElement("li");
@@ -142,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="text" value="${task.text}" class="task-text" />
         ${
           task.text && !task.completed
-            ? `<button class="delete-task">Delete</button>`
+            ? `<button class="delete-task"></button>`
             : ""
         }
       `;
@@ -194,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundIndex,
             categoriesHidden: true,
             isFinalImage,
+            selectedCategory: category, // Add the selected category here
           },
         });
       });
@@ -214,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ) {
           const deleteButton = document.createElement("button");
           deleteButton.className = "delete-task";
-          deleteButton.textContent = "Delete";
           deleteButton.addEventListener("click", () => {
             tasks.splice(index, 1); // Remove the task
 
@@ -230,6 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 backgroundIndex,
                 categoriesHidden: true,
                 isFinalImage: false,
+                selectedCategory: category,
               },
             });
 
@@ -246,6 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundIndex,
             categoriesHidden: true,
             isFinalImage: false,
+            selectedCategory: category, // Add the selected category here
           },
         });
       });
@@ -268,6 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
               backgroundIndex,
               categoriesHidden: true,
               isFinalImage: false,
+              selectedCategory: category, // Add the selected category here
             },
           });
 
@@ -276,11 +306,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      taskList.appendChild(taskItem);
+      taskListElement.appendChild(taskItem);
     });
 
     // Initialize SortableJS
-    new Sortable(taskList, {
+    new Sortable(taskListElement, {
       animation: 600, // Animation speed
       easing: "cubic-bezier(0.22, 1, 0.36, 1)", // Smooth easing effect
       ghostClass: "sortable-ghost", // Class for the placeholder
@@ -296,6 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundIndex,
             categoriesHidden: true,
             isFinalImage: false,
+            selectedCategory: category, // Add the selected category here
           },
         });
       },
