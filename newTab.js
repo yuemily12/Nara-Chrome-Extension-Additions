@@ -138,61 +138,95 @@ document.addEventListener("DOMContentLoaded", () => {
       const taskItem = document.createElement("li");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
-        <span>${task.text}</span>
-        <button class="delete-task">Delete</button>
-        <button class="move-task">Move</button>
+        <input type="text" value="${task.text}" class="task-text" />
+        ${
+          task.text && !task.completed
+            ? `<button class="delete-task">Delete</button>`
+            : ""
+        }
       `;
 
       // Handle task completion
-      const checkbox = taskItem.querySelector("input");
+      const checkbox = taskItem.querySelector("input[type='checkbox']");
       checkbox.addEventListener("change", () => {
         tasks[index].completed = checkbox.checked;
 
-        if (checkbox.checked) {
-          // Increment background index when checked
-          backgroundIndex++;
-        } else {
-          // Decrement background index when unchecked
-          backgroundIndex = Math.max(0, backgroundIndex - 1);
+        // Remove the delete button for checked tasks
+        if (tasks[index].completed) {
+          const deleteButton = taskItem.querySelector(".delete-task");
+          if (deleteButton) deleteButton.remove();
         }
 
-        if (tasks.every((task) => task.completed)) {
-          // All tasks completed, set the final image
+        // Update background based on the number of completed tasks
+        const completedTasks = tasks.filter(
+          (task) => task.completed && task.text.trim() !== ""
+        ).length;
+        const totalTasksWithContent = tasks.filter(
+          (task) => task.text.trim() !== ""
+        ).length;
+
+        if (
+          completedTasks === totalTasksWithContent &&
+          totalTasksWithContent > 0
+        ) {
+          // If all tasks with content are completed, show the final image
           document.body.style.backgroundImage = `url(${
             backgrounds[backgrounds.length - 1]
           })`;
           tasksContainer.classList.add("hidden");
-          categoriesContainer.classList.add("hidden"); // Ensure categories stay hidden
-
-          // Save the final image state
-          chrome.storage.local.set({
-            state: {
-              tasks,
-              backgroundIndex,
-              categoriesHidden: true,
-              isFinalImage: true,
-            },
-          });
+          categoriesContainer.classList.add("hidden");
+          isFinalImage = true;
         } else {
           // Update background to match current state
+          backgroundIndex = Math.min(completedTasks, backgrounds.length - 1);
           document.body.style.backgroundImage = `url(${backgrounds[backgroundIndex]})`;
-
-          // Save the updated state
-          chrome.storage.local.set({
-            state: {
-              tasks,
-              backgroundIndex,
-              categoriesHidden: true,
-              isFinalImage: false,
-            },
-          });
+          isFinalImage = false;
         }
+
+        // Save the updated state
+        chrome.storage.local.set({
+          state: {
+            tasks,
+            backgroundIndex,
+            categoriesHidden: true,
+            isFinalImage,
+          },
+        });
       });
 
-      // Handle task deletion
-      taskItem.querySelector(".delete-task").addEventListener("click", () => {
-        taskItem.remove();
-        tasks.splice(index, 1); // Remove task from array
+      // Handle task text editing
+      const taskTextInput = taskItem.querySelector(".task-text");
+      taskTextInput.addEventListener("change", () => {
+        tasks[index].text = taskTextInput.value;
+
+        // If content is added to a new bar, add a delete button
+        if (tasks[index].text.trim() !== "" && !tasks[index].completed) {
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "delete-task";
+          deleteButton.textContent = "Delete";
+          deleteButton.addEventListener("click", () => {
+            tasks.splice(index, 1); // Remove the task
+
+            // Add a new empty task to maintain 5 tasks
+            if (tasks.length < 5) {
+              tasks.push({ text: "", completed: false });
+            }
+
+            // Save the updated state
+            chrome.storage.local.set({
+              state: {
+                tasks,
+                backgroundIndex,
+                categoriesHidden: true,
+                isFinalImage: false,
+              },
+            });
+
+            // Re-render tasks to reflect the changes
+            renderTasks(tasks, backgroundIndex);
+          });
+          taskItem.appendChild(deleteButton);
+        }
 
         // Save the updated state
         chrome.storage.local.set({
@@ -204,6 +238,32 @@ document.addEventListener("DOMContentLoaded", () => {
           },
         });
       });
+
+      // Handle task deletion (only for non-empty, unchecked tasks)
+      const deleteButton = taskItem.querySelector(".delete-task");
+      if (deleteButton) {
+        deleteButton.addEventListener("click", () => {
+          tasks.splice(index, 1); // Remove the task
+
+          // Add a new empty task to maintain 5 tasks
+          if (tasks.length < 5) {
+            tasks.push({ text: "", completed: false });
+          }
+
+          // Save the updated state
+          chrome.storage.local.set({
+            state: {
+              tasks,
+              backgroundIndex,
+              categoriesHidden: true,
+              isFinalImage: false,
+            },
+          });
+
+          // Re-render tasks to reflect the changes
+          renderTasks(tasks, backgroundIndex);
+        });
+      }
 
       taskList.appendChild(taskItem);
     });
