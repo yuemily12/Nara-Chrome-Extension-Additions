@@ -123,6 +123,11 @@ body {
     border-radius: 4px;
 }
 
+.task-text::placeholder {
+    color: #9CA3AF;
+    font-style: italic;
+}
+
 input[type="checkbox"] {
     width: 20px;
     height: 20px;

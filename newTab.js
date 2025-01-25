@@ -196,7 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
       taskItem.classList.add("draggable");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
-        <input type="text" value="${task.text}" class="task-text" />
+        <input type="text" value="${
+          task.text
+        }" placeholder="Enter enter a task" class="task-text" />
         ${
           task.text && !task.completed
             ? `<button class="delete-task"></button>`
