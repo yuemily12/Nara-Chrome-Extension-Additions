@@ -5,29 +5,69 @@ body {
     min-height: 100vh;
     width: 100vw;
     font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #C850C0 0%, #4158D0 100%);
+    overflow: hidden;
+    position: relative;
+}
+
+.background-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.background-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    overflow: hidden;
+    opacity: 1;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0.5;
+    }
+}
+
+@keyframes backgroundFadeIn {
+    from {
+        opacity: 0.5;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+.fade-in {
+    animation: backgroundFadeIn 0.5s ease-in-out forwards;
 }
 
 /* Welcome message */
-@keyframes fadeIn {
+@keyframes welcomeFadeIn {
     from {
         opacity: 0;
-        transform: translate(-50%, -40%);
     }
 
     to {
         opacity: 0.95;
-        transform: translate(-50%, -50%);
     }
 }
-
 #welcome-message {
     position: fixed;
     top: 30%;
@@ -42,7 +82,7 @@ body {
     white-space: nowrap;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     opacity: 0.95;
-    animation: fadeIn 1s ease-out forwards;
+    animation: welcomeFadeIn 1s ease-out forwards;
 }
 
 /* Categories container */

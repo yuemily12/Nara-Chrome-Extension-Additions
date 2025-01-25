@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const backgroundContainer = document.createElement("div");
+  backgroundContainer.className = "background-container";
+  document.body.appendChild(backgroundContainer);
+
   const categoriesContainer = document.getElementById("categories-container");
   const tasksContainer = document.getElementById("tasks-container");
   const taskList = document.getElementById("task-list");
@@ -91,6 +95,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let sortableInstance = null;
 
+  // Function to change background with slide effect
+  function changeBackgroundWithSlide(newImageUrl) {
+    return new Promise((resolve) => {
+      const currentBg = backgroundContainer.querySelector(".background-slide");
+      const newBg = document.createElement("div");
+      newBg.className = "background-slide";
+      newBg.style.backgroundImage = `url(${newImageUrl})`;
+
+      if (currentBg) {
+        // Add the new background behind the current one
+        backgroundContainer.appendChild(newBg);
+
+        // Trigger animations
+        currentBg.classList.add("fade-out");
+        newBg.classList.add("fade-in");
+
+        // Remove old background after animation
+        setTimeout(() => {
+          currentBg.remove();
+          resolve();
+        }, 300); // Match animation duration
+      } else {
+        // First time loading
+        backgroundContainer.appendChild(newBg);
+        resolve();
+      }
+    });
+  }
+
   // Load saved state from chrome.storage.local
   chrome.storage.local.get("state", (data) => {
     if (data.state) {
@@ -103,26 +136,29 @@ document.addEventListener("DOMContentLoaded", () => {
       } = data.state;
 
       if (isFinalImage) {
-        document.body.style.backgroundImage = `url(${
+        changeBackgroundWithSlide(
           backgroundSets[selectedCategory][
             backgroundSets[selectedCategory].length - 1
           ]
-        })`;
-        tasksContainer.classList.add("hidden");
-        categoriesContainer.classList.add("hidden");
-        document.getElementById("welcome-message").classList.add("hidden");
+        ).then(() => {
+          tasksContainer.classList.add("hidden");
+          categoriesContainer.classList.add("hidden");
+          document.getElementById("welcome-message").classList.add("hidden");
+        });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
           document.getElementById("welcome-message").classList.add("hidden");
         }
-        document.body.style.backgroundImage = `url(${backgroundSets[selectedCategory][backgroundIndex]})`;
+        changeBackgroundWithSlide(
+          backgroundSets[selectedCategory][backgroundIndex]
+        );
       }
     } else {
       categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
-      document.body.style.backgroundImage = `url(${initialBackground})`;
+      changeBackgroundWithSlide(initialBackground);
     }
   });
 
@@ -146,15 +182,16 @@ document.addEventListener("DOMContentLoaded", () => {
         chrome.storage.local.set({
           state: {
             tasks,
-            backgroundIndex: 0, // Start with the category's origin photo (e.g., A.jpg)
+            backgroundIndex: 0,
             categoriesHidden: true,
             isFinalImage: false,
             selectedCategory: category,
           },
         });
         // Set the background to the category's origin photo (e.g., A.jpg)
-        document.body.style.backgroundImage = `url(${backgroundSets[category][0]})`;
-        renderTasks(tasks, 0, category);
+        changeBackgroundWithSlide(backgroundSets[category][0]).then(() => {
+          renderTasks(tasks, 0, category);
+        });
       }
 
       categoriesContainer.classList.add("hidden");
@@ -207,7 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function sortTasksByCompletion(tasks) {
-    // Sort tasks so completed ones are at the top while maintaining relative order
     return [...tasks].sort((a, b) => {
       if (a.completed === b.completed) return 0;
       return a.completed ? -1 : 1;
@@ -235,7 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskListElement = document.getElementById("task-list");
     taskListElement.innerHTML = "";
 
-    // Sort tasks before rendering
     const sortedTasks = sortTasksByCompletion(tasks);
 
     sortedTasks.forEach((task, index) => {
@@ -259,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       taskItem.draggable = true;
-      taskItem.dataset.index = tasks.indexOf(task); // Use original index
+      taskItem.dataset.index = tasks.indexOf(task);
 
       const checkbox = taskItem.querySelector("input[type='checkbox']");
       checkbox.addEventListener("change", () => {
@@ -271,19 +306,15 @@ document.addEventListener("DOMContentLoaded", () => {
           if (deleteButton) deleteButton.remove();
         }
 
-        // Find where this task should move to
         let newPosition = 0;
         if (checkbox.checked) {
-          // If being checked, count completed tasks before this one
           newPosition = tasks.filter(
             (t, i) => t.completed && i < originalIndex
           ).length;
         } else {
-          // If being unchecked, move to first uncompleted position
           newPosition = tasks.filter((t) => t.completed).length;
         }
 
-        // Move the task in the array
         const [movedTask] = tasks.splice(originalIndex, 1);
         tasks.splice(newPosition, 0, movedTask);
 
@@ -291,17 +322,19 @@ document.addEventListener("DOMContentLoaded", () => {
           updateBackgroundState(tasks, category);
 
         if (isFinalImage) {
-          document.body.style.backgroundImage = `url(${
+          changeBackgroundWithSlide(
             backgroundSets[category][backgroundSets[category].length - 1]
-          })`;
-          tasksContainer.classList.add("hidden");
-          categoriesContainer.classList.add("hidden");
-          document.getElementById("welcome-message").classList.add("hidden");
+          ).then(() => {
+            tasksContainer.classList.add("hidden");
+            categoriesContainer.classList.add("hidden");
+            document.getElementById("welcome-message").classList.add("hidden");
+          });
         } else {
-          document.body.style.backgroundImage = `url(${backgroundSets[category][newBackgroundIndex]})`;
+          changeBackgroundWithSlide(
+            backgroundSets[category][newBackgroundIndex]
+          );
         }
 
-        // Save state
         chrome.storage.local.set({
           state: {
             tasks,
@@ -312,29 +345,24 @@ document.addEventListener("DOMContentLoaded", () => {
           },
         });
 
-        // Force animation using Sortable
         if (sortableInstance) {
           const taskItems = Array.from(taskListElement.children);
           const oldItemEl = taskItems[originalIndex];
 
-          // Remove and insert the element at the new position
           taskListElement.removeChild(oldItemEl);
           taskListElement.insertBefore(
             oldItemEl,
             taskListElement.children[newPosition]
           );
 
-          // Trigger animation
           sortableInstance.option("animation", 600);
           sortableInstance.option("onEnd", null);
           const evt = new CustomEvent("sortable:start");
           taskListElement.dispatchEvent(evt);
 
-          // Add animation class to the moved item
           oldItemEl.style.transition = "all 600ms ease";
           oldItemEl.style.animation = "moveTask 600ms ease";
 
-          // Reset the element after animation
           setTimeout(() => {
             oldItemEl.style.transition = "";
             oldItemEl.style.animation = "";
@@ -366,6 +394,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const { backgroundIndex: newBackgroundIndex, isFinalImage } =
               updateBackgroundState(tasks, category);
+
+            if (isFinalImage) {
+              changeBackgroundWithSlide(
+                backgroundSets[category][backgroundSets[category].length - 1]
+              ).then(() => {
+                tasksContainer.classList.add("hidden");
+                categoriesContainer.classList.add("hidden");
+                document
+                  .getElementById("welcome-message")
+                  .classList.add("hidden");
+              });
+            } else {
+              changeBackgroundWithSlide(
+                backgroundSets[category][newBackgroundIndex]
+              );
+            }
 
             chrome.storage.local.set({
               state: {
@@ -406,6 +450,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const { backgroundIndex: newBackgroundIndex, isFinalImage } =
             updateBackgroundState(tasks, category);
 
+          if (isFinalImage) {
+            changeBackgroundWithSlide(
+              backgroundSets[category][backgroundSets[category].length - 1]
+            ).then(() => {
+              tasksContainer.classList.add("hidden");
+              categoriesContainer.classList.add("hidden");
+              document
+                .getElementById("welcome-message")
+                .classList.add("hidden");
+            });
+          } else {
+            changeBackgroundWithSlide(
+              backgroundSets[category][newBackgroundIndex]
+            );
+          }
+
           chrome.storage.local.set({
             state: {
               tasks,
@@ -422,7 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       taskListElement.appendChild(taskItem);
 
-      // Add CSS animation keyframes if they don't exist
       if (!document.querySelector("#task-animations")) {
         const style = document.createElement("style");
         style.id = "task-animations";
@@ -462,14 +521,17 @@ document.addEventListener("DOMContentLoaded", () => {
           updateBackgroundState(tasks, category);
 
         if (isFinalImage) {
-          document.body.style.backgroundImage = `url(${
+          changeBackgroundWithSlide(
             backgroundSets[category][backgroundSets[category].length - 1]
-          })`;
-          tasksContainer.classList.add("hidden");
-          categoriesContainer.classList.add("hidden");
-          document.getElementById("welcome-message").classList.add("hidden");
+          ).then(() => {
+            tasksContainer.classList.add("hidden");
+            categoriesContainer.classList.add("hidden");
+            document.getElementById("welcome-message").classList.add("hidden");
+          });
         } else {
-          document.body.style.backgroundImage = `url(${backgroundSets[category][newBackgroundIndex]})`;
+          changeBackgroundWithSlide(
+            backgroundSets[category][newBackgroundIndex]
+          );
         }
 
         chrome.storage.local.set({
