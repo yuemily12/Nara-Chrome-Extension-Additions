@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Background images
   const backgrounds = [
-    "assets/original.jpg",
+    "assets/original.jpeg",
     "assets/img1.jpg",
     "assets/img2.jpg",
     "assets/img3.jpg",
@@ -202,6 +202,11 @@ document.addEventListener("DOMContentLoaded", () => {
             ? `<button class="delete-task"></button>`
             : ""
         }
+        <div class="drag-handle">
+         <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
       `;
 
       taskItem.draggable = true;
