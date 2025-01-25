@@ -136,49 +136,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tasks.forEach((task, index) => {
       const taskItem = document.createElement("li");
+      taskItem.classList.add("draggable");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
         <span>${task.text}</span>
         <button class="delete-task">Delete</button>
-        <button class="move-task">Move</button>
       `;
 
       taskItem.draggable = true; // Make task draggable
       taskItem.dataset.index = index; // Store task index for drag-and-drop
-
-      // Drag-and-drop event handlers
-      taskItem.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", index);
-      });
-
-      taskItem.addEventListener("dragover", (e) => {
-        e.preventDefault();
-      });
-
-      taskItem.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const draggedIndex = e.dataTransfer.getData("text/plain");
-        const targetIndex = taskItem.dataset.index;
-
-        // Swap tasks in the array
-        [tasks[draggedIndex], tasks[targetIndex]] = [
-          tasks[targetIndex],
-          tasks[draggedIndex],
-        ];
-
-        // Save the updated order
-        chrome.storage.local.set({
-          state: {
-            tasks,
-            backgroundIndex,
-            categoriesHidden: true,
-            isFinalImage: false,
-          },
-        });
-
-        // Re-render the task list
-        renderTasks(tasks, backgroundIndex);
-      });
 
       // Handle task completion
       const checkbox = taskItem.querySelector("input");
@@ -243,6 +209,28 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       taskList.appendChild(taskItem);
+    });
+
+    // Initialize SortableJS
+    new Sortable(taskList, {
+      animation: 600, // Animation speed
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)", // Smooth easing effect
+      ghostClass: "sortable-ghost", // Class for the placeholder
+      chosenClass: "sortable-chosen", // Class for the chosen item
+
+      onUpdate: (evt) => {
+        const [movedTask] = tasks.splice(evt.oldIndex, 1);
+        tasks.splice(evt.newIndex, 0, movedTask);
+
+        chrome.storage.local.set({
+          state: {
+            tasks,
+            backgroundIndex,
+            categoriesHidden: true,
+            isFinalImage: false,
+          },
+        });
+      },
     });
 
     tasksContainer.classList.remove("hidden"); // Show tasks
