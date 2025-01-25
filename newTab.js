@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="checkbox" ${task.completed ? "checked" : ""} />
         <input type="text" value="${
           task.text
-        }" placeholder="Enter enter a task" class="task-text" />
+        }" placeholder="New task" class="task-text" />
         ${
           task.text && !task.completed
             ? `<button class="delete-task"></button>`
