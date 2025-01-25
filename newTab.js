@@ -53,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
+  let sortableInstance = null;
+
   // Load saved state from chrome.storage.local
   chrome.storage.local.get("state", (data) => {
     if (data.state) {
@@ -65,14 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
       } = data.state;
 
       if (isFinalImage) {
-        // If all tasks are completed, show the final image and hide categories
         document.body.style.backgroundImage = `url(${
           backgrounds[backgrounds.length - 1]
         })`;
         tasksContainer.classList.add("hidden");
         categoriesContainer.classList.add("hidden");
       } else {
-        // Restore tasks, background, and categories visibility
         renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
@@ -80,7 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.backgroundImage = `url(${backgrounds[backgroundIndex]})`;
       }
     } else {
-      // Show categories for the initial state
       categoriesContainer.classList.remove("hidden");
       document.body.style.backgroundImage = `url(${backgrounds[0]})`;
     }
@@ -109,13 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
             backgroundIndex: 0,
             categoriesHidden: true,
             isFinalImage: false,
-            selectedCategory: category, // Add the selected category here
+            selectedCategory: category,
           },
         });
         renderTasks(tasks, 0, category);
       }
 
-      categoriesContainer.classList.add("hidden"); // Hide categories
+      categoriesContainer.classList.add("hidden");
     }
   });
 
@@ -131,12 +130,42 @@ document.addEventListener("DOMContentLoaded", () => {
           backgroundIndex: 0,
           categoriesHidden: true,
           isFinalImage: false,
-          selectedCategory: "others", // Add the selected category here
+          selectedCategory: "others",
         },
       });
       renderTasks(tasks, 0, "self");
     }
   });
+
+  function updateBackgroundState(tasks) {
+    const completedTasks = tasks.filter(
+      (task) => task.completed && task.text.trim() !== ""
+    ).length;
+    const totalTasksWithContent = tasks.filter(
+      (task) => task.text.trim() !== ""
+    ).length;
+
+    let backgroundIndex;
+    let isFinalImage = false;
+
+    if (completedTasks === totalTasksWithContent && totalTasksWithContent > 0) {
+      backgroundIndex = backgrounds.length - 1;
+      isFinalImage = true;
+    } else {
+      backgroundIndex = Math.min(completedTasks, backgrounds.length - 1);
+      isFinalImage = false;
+    }
+
+    return { backgroundIndex, isFinalImage };
+  }
+
+  function sortTasksByCompletion(tasks) {
+    // Sort tasks so completed ones are at the top while maintaining relative order
+    return [...tasks].sort((a, b) => {
+      if (a.completed === b.completed) return 0;
+      return a.completed ? -1 : 1;
+    });
+  }
 
   function renderTasks(tasks, backgroundIndex, category) {
     const tasksHeader =
@@ -147,7 +176,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <p class="task-subtitle">Do these small and simple tasks to start your day</p>
     `;
 
-    // If this is the first render, set up the container structure
     if (!document.getElementById("tasks-header")) {
       tasksContainer.innerHTML = "";
       tasksContainer.appendChild(tasksHeader);
@@ -157,11 +185,13 @@ document.addEventListener("DOMContentLoaded", () => {
       tasksContainer.appendChild(newTaskList);
     }
 
-    // Now we can safely get the task list reference
     const taskListElement = document.getElementById("task-list");
-    taskListElement.innerHTML = ""; // Clear existing tasks
+    taskListElement.innerHTML = "";
 
-    tasks.forEach((task, index) => {
+    // Sort tasks before rendering
+    const sortedTasks = sortTasksByCompletion(tasks);
+
+    sortedTasks.forEach((task, index) => {
       const taskItem = document.createElement("li");
       taskItem.classList.add("draggable");
       taskItem.innerHTML = `
@@ -174,164 +204,178 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       `;
 
-      taskItem.draggable = true; // Make task draggable
-      taskItem.dataset.index = index; // Store task index for drag-and-drop
+      taskItem.draggable = true;
+      taskItem.dataset.index = tasks.indexOf(task); // Use original index
 
-      // Handle task completion
       const checkbox = taskItem.querySelector("input[type='checkbox']");
       checkbox.addEventListener("change", () => {
-        tasks[index].completed = checkbox.checked;
+        const originalIndex = tasks.indexOf(task);
+        tasks[originalIndex].completed = checkbox.checked;
 
-        // Remove the delete button for checked tasks
-        if (tasks[index].completed) {
+        if (tasks[originalIndex].completed) {
           const deleteButton = taskItem.querySelector(".delete-task");
           if (deleteButton) deleteButton.remove();
         }
 
-        // Update background based on the number of completed tasks
-        const completedTasks = tasks.filter(
-          (task) => task.completed && task.text.trim() !== ""
-        ).length;
-        const totalTasksWithContent = tasks.filter(
-          (task) => task.text.trim() !== ""
-        ).length;
+        const { backgroundIndex: newBackgroundIndex, isFinalImage } =
+          updateBackgroundState(tasks);
 
-        if (
-          completedTasks === totalTasksWithContent &&
-          totalTasksWithContent > 0
-        ) {
-          // If all tasks with content are completed, show the final image
+        if (isFinalImage) {
           document.body.style.backgroundImage = `url(${
             backgrounds[backgrounds.length - 1]
           })`;
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
-          isFinalImage = true;
         } else {
-          // Update background to match current state
-          backgroundIndex = Math.min(completedTasks, backgrounds.length - 1);
-          document.body.style.backgroundImage = `url(${backgrounds[backgroundIndex]})`;
-          isFinalImage = false;
+          document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
         }
 
-        // Save the updated state
+        // Sort tasks and animate the movement
+        const sortedTasks = sortTasksByCompletion(tasks);
+
+        // Update the original tasks array to match the new order
+        tasks.length = 0;
+        tasks.push(...sortedTasks);
+
+        // Save state before re-rendering
         chrome.storage.local.set({
           state: {
-            tasks,
-            backgroundIndex,
+            tasks: sortedTasks,
+            backgroundIndex: newBackgroundIndex,
             categoriesHidden: true,
             isFinalImage,
-            selectedCategory: category, // Add the selected category here
+            selectedCategory: category,
           },
         });
+
+        // Use Sortable's animate method to move the task
+        if (sortableInstance) {
+          const newIndex = sortedTasks.findIndex((t) => t === task);
+          sortableInstance.sort(sortedTasks.map((_, i) => i));
+        }
       });
 
-      // Handle task text editing
       const taskTextInput = taskItem.querySelector(".task-text");
       taskTextInput.addEventListener("change", () => {
-        tasks[index].text = taskTextInput.value;
+        const originalIndex = tasks.indexOf(task);
+        tasks[originalIndex].text = taskTextInput.value;
 
-        // Check if the task already has a delete button
         const existingDeleteButton = taskItem.querySelector(".delete-task");
 
-        // If content is added to a new bar and no delete button exists, add one
         if (
-          tasks[index].text.trim() !== "" &&
-          !tasks[index].completed &&
+          tasks[originalIndex].text.trim() !== "" &&
+          !tasks[originalIndex].completed &&
           !existingDeleteButton
         ) {
           const deleteButton = document.createElement("button");
           deleteButton.className = "delete-task";
-          deleteButton.addEventListener("click", () => {
-            tasks.splice(index, 1); // Remove the task
 
-            // Add a new empty task to maintain 5 tasks
+          deleteButton.addEventListener("click", () => {
+            tasks.splice(originalIndex, 1);
+
             if (tasks.length < 5) {
               tasks.push({ text: "", completed: false });
             }
 
-            // Save the updated state
+            const { backgroundIndex: newBackgroundIndex, isFinalImage } =
+              updateBackgroundState(tasks);
+
             chrome.storage.local.set({
               state: {
                 tasks,
-                backgroundIndex,
+                backgroundIndex: newBackgroundIndex,
                 categoriesHidden: true,
-                isFinalImage: false,
+                isFinalImage,
                 selectedCategory: category,
               },
             });
 
-            // Re-render tasks to reflect the changes
-            renderTasks(tasks, backgroundIndex);
+            renderTasks(tasks, backgroundIndex, category);
           });
           taskItem.appendChild(deleteButton);
         }
 
-        // Save the updated state
         chrome.storage.local.set({
           state: {
             tasks,
             backgroundIndex,
             categoriesHidden: true,
             isFinalImage: false,
-            selectedCategory: category, // Add the selected category here
+            selectedCategory: category,
           },
         });
       });
 
-      // Handle task deletion (only for non-empty, unchecked tasks)
       const deleteButton = taskItem.querySelector(".delete-task");
       if (deleteButton) {
         deleteButton.addEventListener("click", () => {
-          tasks.splice(index, 1); // Remove the task
+          const originalIndex = tasks.indexOf(task);
+          tasks.splice(originalIndex, 1);
 
-          // Add a new empty task to maintain 5 tasks
           if (tasks.length < 5) {
             tasks.push({ text: "", completed: false });
           }
 
-          // Save the updated state
+          const { backgroundIndex: newBackgroundIndex, isFinalImage } =
+            updateBackgroundState(tasks);
+
           chrome.storage.local.set({
             state: {
               tasks,
-              backgroundIndex,
+              backgroundIndex: newBackgroundIndex,
               categoriesHidden: true,
-              isFinalImage: false,
-              selectedCategory: category, // Add the selected category here
+              isFinalImage,
+              selectedCategory: category,
             },
           });
 
-          // Re-render tasks to reflect the changes
-          renderTasks(tasks, backgroundIndex);
+          renderTasks(tasks, newBackgroundIndex, category);
         });
       }
 
       taskListElement.appendChild(taskItem);
     });
 
-    // Initialize SortableJS
-    new Sortable(taskListElement, {
-      animation: 600, // Animation speed
-      easing: "cubic-bezier(0.22, 1, 0.36, 1)", // Smooth easing effect
-      ghostClass: "sortable-ghost", // Class for the placeholder
-      chosenClass: "sortable-chosen", // Class for the chosen item
+    // Initialize or update SortableJS
+    if (sortableInstance) {
+      sortableInstance.destroy();
+    }
+
+    sortableInstance = new Sortable(taskListElement, {
+      animation: 600,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      ghostClass: "sortable-ghost",
+      chosenClass: "sortable-chosen",
 
       onUpdate: (evt) => {
         const [movedTask] = tasks.splice(evt.oldIndex, 1);
         tasks.splice(evt.newIndex, 0, movedTask);
 
+        const { backgroundIndex: newBackgroundIndex, isFinalImage } =
+          updateBackgroundState(tasks);
+
+        if (isFinalImage) {
+          document.body.style.backgroundImage = `url(${
+            backgrounds[backgrounds.length - 1]
+          })`;
+          tasksContainer.classList.add("hidden");
+          categoriesContainer.classList.add("hidden");
+        } else {
+          document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
+        }
+
         chrome.storage.local.set({
           state: {
             tasks,
-            backgroundIndex,
+            backgroundIndex: newBackgroundIndex,
             categoriesHidden: true,
-            isFinalImage: false,
-            selectedCategory: category, // Add the selected category here
+            isFinalImage,
+            selectedCategory: category,
           },
         });
       },
     });
 
-    tasksContainer.classList.remove("hidden"); // Show tasks
+    tasksContainer.classList.remove("hidden");
   }
 });
