@@ -217,6 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
           if (deleteButton) deleteButton.remove();
         }
 
+        // Find where this task should move to
+        let newPosition = 0;
+        if (checkbox.checked) {
+          // If being checked, count completed tasks before this one
+          newPosition = tasks.filter(
+            (t, i) => t.completed && i < originalIndex
+          ).length;
+        } else {
+          // If being unchecked, move to first uncompleted position
+          newPosition = tasks.filter((t) => t.completed).length;
+        }
+
+        // Move the task in the array
+        const [movedTask] = tasks.splice(originalIndex, 1);
+        tasks.splice(newPosition, 0, movedTask);
+
         const { backgroundIndex: newBackgroundIndex, isFinalImage } =
           updateBackgroundState(tasks);
 
@@ -230,17 +246,10 @@ document.addEventListener("DOMContentLoaded", () => {
           document.body.style.backgroundImage = `url(${backgrounds[newBackgroundIndex]})`;
         }
 
-        // Sort tasks and animate the movement
-        const sortedTasks = sortTasksByCompletion(tasks);
-
-        // Update the original tasks array to match the new order
-        tasks.length = 0;
-        tasks.push(...sortedTasks);
-
-        // Save state before re-rendering
+        // Save state
         chrome.storage.local.set({
           state: {
-            tasks: sortedTasks,
+            tasks,
             backgroundIndex: newBackgroundIndex,
             categoriesHidden: true,
             isFinalImage,
@@ -248,10 +257,33 @@ document.addEventListener("DOMContentLoaded", () => {
           },
         });
 
-        // Use Sortable's animate method to move the task
+        // Force animation using Sortable
         if (sortableInstance) {
-          const newIndex = sortedTasks.findIndex((t) => t === task);
-          sortableInstance.sort(sortedTasks.map((_, i) => i));
+          const taskItems = Array.from(taskListElement.children);
+          const oldItemEl = taskItems[originalIndex];
+
+          // Remove and insert the element at the new position
+          taskListElement.removeChild(oldItemEl);
+          taskListElement.insertBefore(
+            oldItemEl,
+            taskListElement.children[newPosition]
+          );
+
+          // Trigger animation
+          sortableInstance.option("animation", 600);
+          sortableInstance.option("onEnd", null);
+          const evt = new CustomEvent("sortable:start");
+          taskListElement.dispatchEvent(evt);
+
+          // Add animation class to the moved item
+          oldItemEl.style.transition = "all 600ms ease";
+          oldItemEl.style.animation = "moveTask 600ms ease";
+
+          // Reset the element after animation
+          setTimeout(() => {
+            oldItemEl.style.transition = "";
+            oldItemEl.style.animation = "";
+          }, 600);
         }
       });
 
@@ -334,6 +366,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       taskListElement.appendChild(taskItem);
+
+      // Add CSS animation keyframes if they don't exist
+      if (!document.querySelector("#task-animations")) {
+        const style = document.createElement("style");
+        style.id = "task-animations";
+        style.textContent = `
+          @keyframes moveTask {
+            0% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-10px);
+            }
+            100% {
+              transform: translateY(0);
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
     });
 
     // Initialize or update SortableJS
