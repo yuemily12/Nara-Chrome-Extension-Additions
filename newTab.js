@@ -54,43 +54,102 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
-  // Predefined hardcoded tasks
-  const hardcodedTasks = {
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // Updated hardcoded tasks with new categories and random selection
+  const taskPool = {
     daily: [
-      "Wake up",
-      "Exercise",
-      "Eat breakfast",
-      "Plan the day",
-      "Start work",
+      "Brush teeth for two minutes",
+      "Take a relaxing shower",
+      "Eat a yummy breakfast",
+      "Go for a refreshing 20 minute walk",
+      "Change into your favorite outfit",
+      "Brush your beautiful hair",
+      "Floss between all your teeth",
+      "Drink three full glasses of water",
+      "Eat a serving of fruits or vegetables",
+      "Tidy up your bed",
+      "Trim your nails",
+      "Moisturize your face and body",
+      "Take your medications or vitamins",
+      "Put on sunscreen",
+      "Take five minutes to shave",
     ],
     home: [
-      "Clean kitchen",
-      "Do laundry",
-      "Vacuum",
-      "Organize shelves",
-      "Water plants",
+      "Wipe down kitchen counters and stove",
+      "Vacuum your space",
+      "Empty trash bins and replace bags",
+      "Load or unload the dishwasher",
+      "Make your bed",
+      "Clean your bathroom sink, mirror, and toilet",
+      "Sweep or mop the floors",
+      "Stow away your clutter",
+      "Wipe dining table and chairs",
+      "Clean the inside of the microwave",
+      "Sort mail and papers",
+      "Water your plants",
+      "Do a quick dusting of surfaces",
+      "Put all your stray clothes in the hamper",
+      "Organize your desk",
+      "Do a load of laundry",
+      "Wipe your electronic surfaces clean",
     ],
     pet: [
-      "Feed pet",
-      "Walk pet",
-      "Play with pet",
-      "Clean litter box",
-      "Visit vet",
+      "Provide fresh water in bowl",
+      "Clean feeding area",
+      "Brush fur",
+      "Have dedicated playtime together",
+      "Give healthy treats as rewards",
+      "Monitor food and water intake",
+      "Give pets attention and affection",
+      "Check skin/coat for any abnormalities",
     ],
     friends: [
-      "Call a friend",
-      "Plan a hangout",
-      "Write a letter",
-      "Send a gift",
-      "Catch up online",
+      "Send a thoughtful text message to someone you love",
+      "Schedule a catch-up call/coffee",
+      "Tell someone a nice compliment",
+      "Wish someone a happy birthday today",
+      "Give a meaningful compliment",
+      "Share a memory/photo with someone",
+      "Write a handwritten note",
+      "Plan a meetup with some friends",
+      "Send a short text to a friend you have not heard from lately",
+      "Congratulate someone on a recent achievement",
     ],
     mind: [
-      "Meditate",
-      "Read a book",
-      "Journal thoughts",
-      "Learn something new",
-      "Practice gratitude",
+      "Take 5 minutes to practice mindful breathing",
+      "Write 3 things you are grateful for",
+      "Listen to calming music",
+      "Practice a 5 minute meditation",
+      "Journal your current feelings down for ten minutes",
+      "Read a chapter of your new book",
+      "Follow a 10 minute stretching Youtube video",
+      "Write down a list of 3 affirmations for yourself",
+      "Organize one small space in your home",
+      "Go outside for at least 20 minutes of fresh air",
+      "Do one creative activity",
+      "Practice Duolingo for 10 minutes",
     ],
+  };
+
+  // Function to get 5 random tasks from a category
+  function getRandomTasks(category) {
+    const tasks = taskPool[category];
+    return shuffleArray([...tasks]).slice(0, 5);
+  }
+
+  const hardcodedTasks = {
+    daily: getRandomTasks("daily"),
+    home: getRandomTasks("home"),
+    pet: getRandomTasks("pet"),
+    friends: getRandomTasks("friends"),
+    mind: getRandomTasks("mind"),
   };
 
   let sortableInstance = null;
