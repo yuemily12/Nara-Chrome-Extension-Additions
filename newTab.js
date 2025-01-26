@@ -58,6 +58,78 @@ document.addEventListener("DOMContentLoaded", () => {
     ],
   };
 
+  // Hover effect logic
+  const deerAreas = [
+    {
+      id: "deer1",
+      top: 430,
+      left: 320,
+      width: 150,
+      height: 250,
+      circleImage: "assets/circle_selfcare.png",
+    },
+    {
+      id: "deer2",
+      top: 460,
+      left: 1400,
+      width: 100,
+      height: 200,
+      circleImage: "assets/circle_lovedones.png",
+    },
+    {
+      id: "deer3",
+      top: 630,
+      left: 1310,
+      width: 100,
+      height: 200,
+      circleImage: "assets/circle_pets.png",
+    },
+    {
+      id: "deer4",
+      top: 520,
+      left: 790,
+      width: 120,
+      height: 220,
+      circleImage: "assets/circle_thehome.png",
+    },
+    {
+      id: "deer5",
+      top: 550,
+      left: 1080,
+      width: 90,
+      height: 160,
+      circleImage: "assets/circle_themind.png",
+    },
+  ];
+
+  deerAreas.forEach((area) => {
+    const circle = document.getElementById(`${area.id}-circle`);
+    circle.style.backgroundImage = `url(${area.circleImage})`;
+
+    const circleWidth = getComputedStyle(circle).width || "200px";
+    const size = parseInt(circleWidth);
+    circle.style.left = `${area.left + area.width / 2 - size / 2}px`;
+    circle.style.top = `${area.top + area.height / 2 - size / 2}px`;
+
+    const checkHover = (e) => {
+      const mouseX = e.pageX;
+      const mouseY = e.pageY;
+
+      if (
+        mouseX >= area.left &&
+        mouseX <= area.left + area.width &&
+        mouseY >= area.top &&
+        mouseY <= area.top + area.height
+      ) {
+        circle.classList.add("active");
+      } else {
+        circle.classList.remove("active");
+      }
+    };
+
+    document.addEventListener("mousemove", checkHover);
+  });
+
   // Preload image function
   function preloadImage(url) {
     return new Promise((resolve, reject) => {
@@ -124,6 +196,22 @@ document.addEventListener("DOMContentLoaded", () => {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  // Function to hide hover circles
+  function hideHoverCircles() {
+    const hoverCircles = document.querySelectorAll(".deer-circle");
+    hoverCircles.forEach((circle) => {
+      circle.classList.add("hidden");
+    });
+  }
+
+  // Function to show hover circles
+  function showHoverCircles() {
+    const hoverCircles = document.querySelectorAll(".deer-circle");
+    hoverCircles.forEach((circle) => {
+      circle.classList.remove("hidden");
+    });
   }
 
   // Updated hardcoded tasks with new categories and random selection
@@ -237,12 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ).then(() => {
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
+          hideHoverCircles(); // Hide hover circles when the final image is shown
           document.getElementById("welcome-message").classList.add("hidden");
         });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
+          hideHoverCircles(); // Hide hover circles when categories are hidden
           document.getElementById("welcome-message").classList.add("hidden");
         }
         changeBackgroundWithSlide(
@@ -252,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
+      showHoverCircles(); // Show hover circles in the initial state
       changeBackgroundWithSlide(initialBackground);
     }
   });
@@ -259,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
   categoriesContainer.addEventListener("click", (event) => {
     if (event.target.classList.contains("category-button")) {
       const category = event.target.dataset.category;
+      hideHoverCircles();
 
       if (category === "others") {
         const customTask = prompt("Enter a custom task:");
@@ -289,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       categoriesContainer.classList.add("hidden");
+      hideHoverCircles();
       document.getElementById("welcome-message").classList.add("hidden");
     }
   });
@@ -334,6 +427,8 @@ document.addEventListener("DOMContentLoaded", () => {
     categoriesContainer.classList.remove("hidden");
     document.getElementById("welcome-message").classList.remove("hidden");
     changeBackgroundWithSlide(initialBackground);
+
+    showHoverCircles();
 
     // Hide the reset modal
     resetModal.classList.add("hidden");
@@ -448,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ).then(() => {
             tasksContainer.classList.add("hidden");
             categoriesContainer.classList.add("hidden");
+            hideHoverCircles(); // Hide hover circles when the final image is shown
             document.getElementById("welcome-message").classList.add("hidden");
           });
         } else {

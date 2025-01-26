@@ -417,3 +417,43 @@ input[type="checkbox"]:checked+.task-text {
     background-color: #4B5563;
     /* Slightly darker gray on hover */
 }
+
+/* Hover Circle Styles */
+.deer-circle {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#deer1-circle {
+    width: 450px;
+    height: 450px;
+}
+
+#deer2-circle {
+    width: 400px;
+    height: 400px;
+}
+
+#deer3-circle {
+    width: 220px;
+    height: 220px;
+}
+
+#deer4-circle {
+    width: 250px;
+    height: 250px;
+}
+
+#deer5-circle {
+    width: 340px;
+    height: 340px;
+}
+
+.deer-circle.active {
+    opacity: 1;
+}
