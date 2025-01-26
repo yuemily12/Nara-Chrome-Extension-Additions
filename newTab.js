@@ -118,8 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer6", // Unique ID for the new hover area
-      top: 200, // Adjust the top position to place it in the top right-hand corner
-      left: 1000, // Adjust the left position to place it in the top right-hand corner
+      top: 30, // Adjust the top position to place it in the top right-hand corner
+      left: 1280, // Adjust the left position to place it in the top right-hand corner
       width: 150, // Adjust the width of the hover area
       height: 150, // Adjust the height of the hover area
       circleImage: "assets/circle_somethingelse.png", // New image for the hover area
