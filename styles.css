@@ -122,6 +122,9 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
     min-width: 400px;
+    /* Set a minimum width */
+    max-width: 400px;
+    /* Set a maximum width to prevent expansion */
 }
 
 #task-list {
@@ -173,17 +176,27 @@ body {
     color: #333;
     padding: 4px;
     font-family: 'DM Sans', sans-serif;
+    outline: none;
+    white-space: pre-wrap;
+    /* Allow text to wrap */
+    overflow-wrap: break-word;
+    /* Break long words to prevent overflow */
+    word-wrap: break-word;
+    /* Fallback for older browsers */
+    max-width: 100%;
+    /* Ensure the text does not exceed the container's width */
+}
+
+.task-text[contenteditable="true"]:empty::before {
+    content: attr(placeholder);
+    color: #9CA3AF;
+    font-style: italic;
 }
 
 .task-text:focus {
     outline: none;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 4px;
-}
-
-.task-text::placeholder {
-    color: #9CA3AF;
-    font-style: italic;
 }
 
 input[type="checkbox"] {
@@ -270,12 +283,6 @@ input[type="checkbox"]:checked::after {
 .delete-task:hover {
     color: #6B7280;
     filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
-}
-
-.task-text:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 4px;
 }
 
 /* Completed task styling */

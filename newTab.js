@@ -399,9 +399,9 @@ document.addEventListener("DOMContentLoaded", () => {
       taskItem.classList.add("draggable");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
-        <input type="text" value="${
+        <div class="task-text" contenteditable="true" placeholder="New task">${
           task.text
-        }" placeholder="New task" class="task-text" />
+        }</div>
         ${
           task.text && !task.completed
             ? `<button class="delete-task"></button>`
@@ -492,9 +492,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const taskTextInput = taskItem.querySelector(".task-text");
-      taskTextInput.addEventListener("change", () => {
+      taskTextInput.addEventListener("input", () => {
         const originalIndex = tasks.indexOf(task);
-        tasks[originalIndex].text = taskTextInput.value;
+        tasks[originalIndex].text = taskTextInput.textContent;
 
         const existingDeleteButton = taskItem.querySelector(".delete-task");
 
