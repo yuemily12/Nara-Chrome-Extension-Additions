@@ -492,6 +492,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const taskTextInput = taskItem.querySelector(".task-text");
+      taskTextInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault(); // Prevent the default behavior (new line)
+          taskTextInput.blur(); // Exit edit mode
+        }
+      });
+
       taskTextInput.addEventListener("input", () => {
         const originalIndex = tasks.indexOf(task);
         tasks[originalIndex].text = taskTextInput.textContent;
