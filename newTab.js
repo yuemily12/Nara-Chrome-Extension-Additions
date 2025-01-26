@@ -365,7 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
     } else {
-      categoriesContainer.classList.remove("hidden");
+      //categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
       showHoverCircles(); // Show hover circles in the initial state
       changeBackgroundWithSlide(initialBackground);
@@ -449,7 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset the UI to the initial state
     tasksContainer.classList.add("hidden");
-    categoriesContainer.classList.remove("hidden");
+    //categoriesContainer.classList.remove("hidden");
     document.getElementById("welcome-message").classList.remove("hidden");
     changeBackgroundWithSlide(initialBackground);
 

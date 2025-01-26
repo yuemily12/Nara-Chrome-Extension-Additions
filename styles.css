@@ -457,3 +457,8 @@ input[type="checkbox"]:checked+.task-text {
 .deer-circle.active {
     opacity: 1;
 }
+
+#categories-container {
+    display: none !important;
+    /* Hide the categories container by default */
+}
