@@ -59,6 +59,14 @@ document.addEventListener("DOMContentLoaded", () => {
       "assets/E4.png",
       "assets/E5.png",
     ],
+    others: [
+      "assets/F.png",
+      "assets/F1.png",
+      "assets/F2.png",
+      "assets/F3.png",
+      "assets/F4.png",
+      "assets/F5.png",
+    ],
   };
 
   // Hover effect logic
@@ -107,6 +115,15 @@ document.addEventListener("DOMContentLoaded", () => {
       height: 160,
       circleImage: "assets/circle_themind.png",
       category: "mind",
+    },
+    {
+      id: "deer6", // Unique ID for the new hover area
+      top: 200, // Adjust the top position to place it in the top right-hand corner
+      left: 1000, // Adjust the left position to place it in the top right-hand corner
+      width: 150, // Adjust the width of the hover area
+      height: 150, // Adjust the height of the hover area
+      circleImage: "assets/circle_somethingelse.png", // New image for the hover area
+      category: "others", // Link to the "Others" category
     },
   ];
 

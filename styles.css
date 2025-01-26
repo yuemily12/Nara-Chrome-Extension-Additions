@@ -454,6 +454,11 @@ input[type="checkbox"]:checked+.task-text {
     height: 340px;
 }
 
+#deer6-circle {
+    width: 400px;
+    height: 400px;
+}
+
 .deer-circle.active {
     opacity: 1;
 }
