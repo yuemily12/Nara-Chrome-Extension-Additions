@@ -420,13 +420,29 @@ document.addEventListener("DOMContentLoaded", () => {
       hideHoverCircles();
 
       if (category === "others") {
-        const customTask = prompt("Enter a custom task:");
-        if (customTask) {
-          chrome.runtime.sendMessage({
-            action: "generateSubtasks",
-            task: customTask,
-          });
-        }
+        // Create five empty tasks for the "Others" category
+        const tasks = Array(5)
+          .fill()
+          .map(() => ({
+            text: "",
+            completed: false,
+          }));
+
+        chrome.storage.local.set({
+          state: {
+            tasks,
+            backgroundIndex: 0,
+            categoriesHidden: true,
+            isFinalImage: false,
+            selectedCategory: category,
+          },
+        });
+
+        // Set the background to the category's origin photo (e.g., A.jpg)
+        changeBackgroundWithSlide(backgroundSets[category][0]).then(() => {
+          // Render the empty tasks
+          renderTasks(tasks, 0, category);
+        });
       } else {
         const tasks = hardcodedTasks[category].map((task) => ({
           text: task,
@@ -553,25 +569,44 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateBackgroundState(tasks, selectedCategory) {
+    const tasksWithContent = tasks.filter((task) => task.text.trim() !== "");
     const completedTasks = tasks.filter(
       (task) => task.completed && task.text.trim() !== ""
     ).length;
-    const totalTasksWithContent = tasks.filter(
-      (task) => task.text.trim() !== ""
-    ).length;
+    const totalTasksWithContent = tasksWithContent.length;
 
     let backgroundIndex;
     let isFinalImage = false;
 
-    if (completedTasks === totalTasksWithContent && totalTasksWithContent > 0) {
-      backgroundIndex = backgroundSets[selectedCategory].length - 1;
-      isFinalImage = true;
-    } else {
+    if (selectedCategory === "others") {
+      // For "others" category, increment background based on completed tasks
       backgroundIndex = Math.min(
         completedTasks,
-        backgroundSets[selectedCategory].length - 1
+        backgroundSets[selectedCategory].length - 2
       );
-      isFinalImage = false;
+
+      // Only show final image when ALL tasks with content are completed
+      if (
+        completedTasks === totalTasksWithContent &&
+        totalTasksWithContent > 0
+      ) {
+        backgroundIndex = backgroundSets[selectedCategory].length - 1;
+        isFinalImage = true;
+      }
+    } else {
+      // Original logic for other categories
+      if (
+        completedTasks === totalTasksWithContent &&
+        totalTasksWithContent > 0
+      ) {
+        backgroundIndex = backgroundSets[selectedCategory].length - 1;
+        isFinalImage = true;
+      } else {
+        backgroundIndex = Math.min(
+          completedTasks,
+          backgroundSets[selectedCategory].length - 1
+        );
+      }
     }
 
     return { backgroundIndex, isFinalImage };
@@ -589,8 +624,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("tasks-header") || document.createElement("div");
     tasksHeader.id = "tasks-header";
     tasksHeader.innerHTML = `
-      <h1 class="task-title">Take care of your ${category}</h1>
-      <p class="task-subtitle">Do these small and simple tasks to start your day</p>
+      <h1 class="task-title">today's list</h1>
+      <p class="task-subtitle">some tasks to help you feel good</p>
     `;
 
     if (!document.getElementById("tasks-header")) {

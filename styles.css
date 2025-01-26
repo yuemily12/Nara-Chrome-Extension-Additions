@@ -173,6 +173,7 @@ body {
     border: none;
     background: transparent;
     font-size: 16px;
+    text-transform: lowercase;
     color: #333;
     padding: 4px;
     font-family: 'DM Sans', sans-serif;
@@ -470,13 +471,14 @@ input[type="checkbox"]:checked+.task-text {
 
 .thank-you-message {
     position: fixed;
-    top: 30%;
+    top: 80%;
     left: 25%;
     transform: translate(-50%, -50%);
     color: white;
     font-size: 5.3rem;
     font-weight: 400;
-    text-align: center;
+    line-height: 4rem;
+    text-align: left;
     font-family: 'Slackside One', sans-serif;
     font-style: italic;
     letter-spacing: 0.01em;
