@@ -16,6 +16,8 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
+    background-color: #000;
+    /* Fallback color during transitions */
 }
 
 .background-slide {
@@ -28,34 +30,16 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     opacity: 1;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0.5;
-    }
-}
-
-@keyframes backgroundFadeIn {
-    from {
-        opacity: 0.5;
-    }
-
-    to {
-        opacity: 1;
-    }
+    will-change: opacity;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .fade-out {
-    animation: fadeOut 0.5s ease-in-out forwards;
+    opacity: 0;
 }
 
 .fade-in {
-    animation: backgroundFadeIn 0.5s ease-in-out forwards;
+    opacity: 1;
 }
 
 /* Welcome message */
@@ -68,6 +52,7 @@ body {
         opacity: 0.95;
     }
 }
+
 #welcome-message {
     position: fixed;
     top: 30%;

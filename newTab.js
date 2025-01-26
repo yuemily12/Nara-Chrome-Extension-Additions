@@ -13,12 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Background images for each category
   const backgroundSets = {
     daily: [
-      "assets/A.jpg", // Category origin photo (shown when no tasks are checked)
-      "assets/A1.jpg", // Shown after 1 task is checked
-      "assets/A2.jpg", // Shown after 2 tasks are checked
-      "assets/A3.jpg", // Shown after 3 tasks are checked
-      "assets/A4.jpg", // Shown after 4 tasks are checked
-      "assets/A5.jpg", // Shown after all 5 tasks are checked
+      "assets/A.jpg",
+      "assets/A1.jpg",
+      "assets/A2.jpg",
+      "assets/A3.jpg",
+      "assets/A4.jpg",
+      "assets/A5.jpg",
     ],
     home: [
       "assets/B.jpg",
@@ -53,6 +53,66 @@ document.addEventListener("DOMContentLoaded", () => {
       "assets/E5.jpg",
     ],
   };
+
+  // Preload image function
+  function preloadImage(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(url);
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  // Function to change background with slide effect
+  async function changeBackgroundWithSlide(newImageUrl) {
+    try {
+      // Preload the new image first
+      await preloadImage(newImageUrl);
+
+      return new Promise((resolve) => {
+        const currentBg =
+          backgroundContainer.querySelector(".background-slide");
+        const newBg = document.createElement("div");
+        newBg.className = "background-slide";
+
+        // Set initial opacity to 0
+        newBg.style.opacity = "0";
+        newBg.style.backgroundImage = `url(${newImageUrl})`;
+
+        // Add the new background
+        backgroundContainer.appendChild(newBg);
+
+        // Force a reflow to ensure the opacity transition works
+        newBg.offsetHeight;
+
+        // Fade in the new background
+        requestAnimationFrame(() => {
+          newBg.style.opacity = "1";
+
+          if (currentBg) {
+            // Start fading out the old background
+            currentBg.style.opacity = "0";
+
+            // Remove the old background after transition
+            currentBg.addEventListener(
+              "transitionend",
+              () => {
+                currentBg.remove();
+                resolve();
+              },
+              { once: true }
+            );
+          } else {
+            resolve();
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error loading image:", error);
+      return Promise.resolve();
+    }
+  }
 
   function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -153,35 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let sortableInstance = null;
-
-  // Function to change background with slide effect
-  function changeBackgroundWithSlide(newImageUrl) {
-    return new Promise((resolve) => {
-      const currentBg = backgroundContainer.querySelector(".background-slide");
-      const newBg = document.createElement("div");
-      newBg.className = "background-slide";
-      newBg.style.backgroundImage = `url(${newImageUrl})`;
-
-      if (currentBg) {
-        // Add the new background behind the current one
-        backgroundContainer.appendChild(newBg);
-
-        // Trigger animations
-        currentBg.classList.add("fade-out");
-        newBg.classList.add("fade-in");
-
-        // Remove old background after animation
-        setTimeout(() => {
-          currentBg.remove();
-          resolve();
-        }, 300); // Match animation duration
-      } else {
-        // First time loading
-        backgroundContainer.appendChild(newBg);
-        resolve();
-      }
-    });
-  }
 
   // Load saved state from chrome.storage.local
   chrome.storage.local.get("state", (data) => {
