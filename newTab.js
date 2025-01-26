@@ -11,50 +11,53 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetYesButton = document.getElementById("reset-yes");
   const resetNoButton = document.getElementById("reset-no");
 
+  // for controlling when hovers are active
+  let hoverListeners = [];
+
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
 
   // Background images for each category
   const backgroundSets = {
     daily: [
-      "assets/A.jpg",
-      "assets/A1.jpg",
-      "assets/A2.jpg",
-      "assets/A3.jpg",
-      "assets/A4.jpg",
-      "assets/A5.jpg",
+      "assets/A.png",
+      "assets/A1.png",
+      "assets/A2.png",
+      "assets/A3.png",
+      "assets/A4.png",
+      "assets/A5.png",
     ],
     home: [
-      "assets/B.jpg",
-      "assets/B1.jpg",
-      "assets/B2.jpg",
-      "assets/B3.jpg",
-      "assets/B4.jpg",
-      "assets/B5.jpg",
+      "assets/B.png",
+      "assets/B1.png",
+      "assets/B2.png",
+      "assets/B3.png",
+      "assets/B4.png",
+      "assets/B5.png",
     ],
     pet: [
-      "assets/C.jpg",
-      "assets/C1.jpg",
-      "assets/C2.jpg",
-      "assets/C3.jpg",
-      "assets/C4.jpg",
-      "assets/C5.jpg",
+      "assets/C.png",
+      "assets/C1.png",
+      "assets/C2.png",
+      "assets/C3.png",
+      "assets/C4.png",
+      "assets/C5.png",
     ],
     friends: [
-      "assets/D.jpg",
-      "assets/D1.jpg",
-      "assets/D2.jpg",
-      "assets/D3.jpg",
-      "assets/D4.jpg",
-      "assets/D5.jpg",
+      "assets/D.png",
+      "assets/D1.png",
+      "assets/D2.png",
+      "assets/D3.png",
+      "assets/D4.png",
+      "assets/D5.png",
     ],
     mind: [
-      "assets/E.jpg",
-      "assets/E1.jpg",
-      "assets/E2.jpg",
-      "assets/E3.jpg",
-      "assets/E4.jpg",
-      "assets/E5.jpg",
+      "assets/E.png",
+      "assets/E1.png",
+      "assets/E2.png",
+      "assets/E3.png",
+      "assets/E4.png",
+      "assets/E5.png",
     ],
   };
 
@@ -62,19 +65,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const deerAreas = [
     {
       id: "deer1",
-      top: 430,
-      left: 320,
+      top: 530,
+      left: 400,
       width: 150,
       height: 250,
       circleImage: "assets/circle_selfcare.png",
+      category: "daily",
     },
     {
       id: "deer2",
-      top: 460,
-      left: 1400,
+      top: 570,
+      left: 1510,
       width: 100,
       height: 200,
       circleImage: "assets/circle_lovedones.png",
+      category: "friends",
     },
     {
       id: "deer3",
@@ -83,24 +88,35 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 100,
       height: 200,
       circleImage: "assets/circle_pets.png",
+      category: "pet",
     },
     {
       id: "deer4",
-      top: 520,
-      left: 790,
+      top: 540,
+      left: 800,
       width: 120,
       height: 220,
       circleImage: "assets/circle_thehome.png",
+      category: "home",
     },
     {
       id: "deer5",
-      top: 550,
-      left: 1080,
+      top: 600,
+      left: 1150,
       width: 90,
       height: 160,
       circleImage: "assets/circle_themind.png",
+      category: "mind",
     },
   ];
+
+  function removeAllListeners() {
+    hoverListeners.forEach((listener) => {
+      document.removeEventListener("mousemove", listener);
+      document.removeEventListener("click", listener);
+    });
+    hoverListeners = [];
+  }
 
   deerAreas.forEach((area) => {
     const circle = document.getElementById(`${area.id}-circle`);
@@ -127,7 +143,35 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    // Store listener reference for later removal
+    hoverListeners.push(checkHover);
     document.addEventListener("mousemove", checkHover);
+
+    const handleClick = (e) => {
+      if (!circle.classList.contains("hidden")) {
+        // Only handle clicks when circles are visible
+        const mouseX = e.pageX;
+        const mouseY = e.pageY;
+
+        if (
+          mouseX >= area.left &&
+          mouseX <= area.left + area.width &&
+          mouseY >= area.top &&
+          mouseY <= area.top + area.height
+        ) {
+          const categoryButton = document.querySelector(
+            `.category-button[data-category="${area.category}"]`
+          );
+          if (categoryButton) {
+            categoryButton.click();
+            removeAllListeners(); // Remove listeners after category selection
+          }
+        }
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+    hoverListeners.push(handleClick);
   });
 
   // Preload image function
@@ -327,6 +371,12 @@ document.addEventListener("DOMContentLoaded", () => {
           categoriesContainer.classList.add("hidden");
           hideHoverCircles(); // Hide hover circles when the final image is shown
           document.getElementById("welcome-message").classList.add("hidden");
+
+          // Create and show thank you message
+          const thankYouMessage = document.createElement("div");
+          thankYouMessage.className = "thank-you-message";
+          thankYouMessage.textContent = "Thank you for taking good care of me";
+          document.body.appendChild(thankYouMessage);
         });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
@@ -340,7 +390,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
     } else {
-      categoriesContainer.classList.remove("hidden");
+      //categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
       showHoverCircles(); // Show hover circles in the initial state
       changeBackgroundWithSlide(initialBackground);
@@ -424,11 +474,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset the UI to the initial state
     tasksContainer.classList.add("hidden");
-    categoriesContainer.classList.remove("hidden");
     document.getElementById("welcome-message").classList.remove("hidden");
     changeBackgroundWithSlide(initialBackground);
 
-    showHoverCircles();
+    // Remove thank you message if it exists
+    const thankYouMessage = document.querySelector(".thank-you-message");
+    if (thankYouMessage) {
+      thankYouMessage.remove();
+    }
+
+    // Reattach hover listeners
+    deerAreas.forEach((area) => {
+      const circle = document.getElementById(`${area.id}-circle`);
+
+      const checkHover = (e) => {
+        const mouseX = e.pageX;
+        const mouseY = e.pageY;
+
+        if (
+          mouseX >= area.left &&
+          mouseX <= area.left + area.width &&
+          mouseY >= area.top &&
+          mouseY <= area.top + area.height
+        ) {
+          circle.classList.add("active");
+        } else {
+          circle.classList.remove("active");
+        }
+      };
+
+      const handleClick = (e) => {
+        if (!circle.classList.contains("hidden")) {
+          const mouseX = e.pageX;
+          const mouseY = e.pageY;
+
+          if (
+            mouseX >= area.left &&
+            mouseX <= area.left + area.width &&
+            mouseY >= area.top &&
+            mouseY <= area.top + area.height
+          ) {
+            const categoryButton = document.querySelector(
+              `.category-button[data-category="${area.category}"]`
+            );
+            if (categoryButton) {
+              categoryButton.click();
+              removeAllListeners();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("mousemove", checkHover);
+      document.addEventListener("click", handleClick);
+      hoverListeners.push(checkHover, handleClick);
+      circle.classList.remove("hidden");
+    });
 
     // Hide the reset modal
     resetModal.classList.add("hidden");
@@ -545,6 +646,12 @@ document.addEventListener("DOMContentLoaded", () => {
             categoriesContainer.classList.add("hidden");
             hideHoverCircles(); // Hide hover circles when the final image is shown
             document.getElementById("welcome-message").classList.add("hidden");
+            // Create and show thank you message
+            const thankYouMessage = document.createElement("div");
+            thankYouMessage.className = "thank-you-message";
+            thankYouMessage.textContent =
+              "Thank you for taking good care of me";
+            document.body.appendChild(thankYouMessage);
           });
         } else {
           changeBackgroundWithSlide(
@@ -628,6 +735,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 document
                   .getElementById("welcome-message")
                   .classList.add("hidden");
+                // Create and show thank you message
+                const thankYouMessage = document.createElement("div");
+                thankYouMessage.className = "thank-you-message";
+                thankYouMessage.textContent =
+                  "Thank you for taking good care of me";
+                document.body.appendChild(thankYouMessage);
               });
             } else {
               changeBackgroundWithSlide(
@@ -683,6 +796,12 @@ document.addEventListener("DOMContentLoaded", () => {
               document
                 .getElementById("welcome-message")
                 .classList.add("hidden");
+              // Create and show thank you message
+              const thankYouMessage = document.createElement("div");
+              thankYouMessage.className = "thank-you-message";
+              thankYouMessage.textContent =
+                "Thank you for taking good care of me";
+              document.body.appendChild(thankYouMessage);
             });
           } else {
             changeBackgroundWithSlide(
@@ -751,6 +870,12 @@ document.addEventListener("DOMContentLoaded", () => {
             tasksContainer.classList.add("hidden");
             categoriesContainer.classList.add("hidden");
             document.getElementById("welcome-message").classList.add("hidden");
+            // Create and show thank you message
+            const thankYouMessage = document.createElement("div");
+            thankYouMessage.className = "thank-you-message";
+            thankYouMessage.textContent =
+              "Thank you for taking good care of me";
+            document.body.appendChild(thankYouMessage);
           });
         } else {
           changeBackgroundWithSlide(
