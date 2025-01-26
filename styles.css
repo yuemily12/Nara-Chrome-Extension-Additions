@@ -462,3 +462,22 @@ input[type="checkbox"]:checked+.task-text {
     display: none !important;
     /* Hide the categories container by default */
 }
+
+.thank-you-message {
+    position: fixed;
+    top: 30%;
+    left: 25%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 5.3rem;
+    font-weight: 400;
+    text-align: center;
+    font-family: 'Slackside One', sans-serif;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    text-transform: lowercase;
+    max-width: 40%;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    opacity: 0.95;
+    animation: welcomeFadeIn 1s ease-out forwards;
+    }

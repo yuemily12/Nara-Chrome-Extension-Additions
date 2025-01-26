@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetYesButton = document.getElementById("reset-yes");
   const resetNoButton = document.getElementById("reset-no");
 
+  // for controlling when hovers are active
+  let hoverListeners = [];
+
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
 
@@ -107,6 +110,14 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   ];
 
+  function removeAllListeners() {
+    hoverListeners.forEach((listener) => {
+      document.removeEventListener("mousemove", listener);
+      document.removeEventListener("click", listener);
+    });
+    hoverListeners = [];
+  }
+
   deerAreas.forEach((area) => {
     const circle = document.getElementById(`${area.id}-circle`);
     circle.style.backgroundImage = `url(${area.circleImage})`;
@@ -132,27 +143,35 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
+    // Store listener reference for later removal
+    hoverListeners.push(checkHover);
     document.addEventListener("mousemove", checkHover);
 
-    // click for deer images
-    document.addEventListener("click", (e) => {
-      const mouseX = e.pageX;
-      const mouseY = e.pageY;
+    const handleClick = (e) => {
+      if (!circle.classList.contains("hidden")) {
+        // Only handle clicks when circles are visible
+        const mouseX = e.pageX;
+        const mouseY = e.pageY;
 
-      if (
-        mouseX >= area.left &&
-        mouseX <= area.left + area.width &&
-        mouseY >= area.top &&
-        mouseY <= area.top + area.height
-      ) {
-        const categoryButton = document.querySelector(
-          `.category-button[data-category="${area.category}"]`
-        );
-        if (categoryButton) {
-          categoryButton.click();
+        if (
+          mouseX >= area.left &&
+          mouseX <= area.left + area.width &&
+          mouseY >= area.top &&
+          mouseY <= area.top + area.height
+        ) {
+          const categoryButton = document.querySelector(
+            `.category-button[data-category="${area.category}"]`
+          );
+          if (categoryButton) {
+            categoryButton.click();
+            removeAllListeners(); // Remove listeners after category selection
+          }
         }
       }
-    });
+    };
+
+    document.addEventListener("click", handleClick);
+    hoverListeners.push(handleClick);
   });
 
   // Preload image function
@@ -352,6 +371,12 @@ document.addEventListener("DOMContentLoaded", () => {
           categoriesContainer.classList.add("hidden");
           hideHoverCircles(); // Hide hover circles when the final image is shown
           document.getElementById("welcome-message").classList.add("hidden");
+
+          // Create and show thank you message
+          const thankYouMessage = document.createElement("div");
+          thankYouMessage.className = "thank-you-message";
+          thankYouMessage.textContent = "Thank you for taking good care of me";
+          document.body.appendChild(thankYouMessage);
         });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
@@ -449,11 +474,62 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset the UI to the initial state
     tasksContainer.classList.add("hidden");
-    //categoriesContainer.classList.remove("hidden");
     document.getElementById("welcome-message").classList.remove("hidden");
     changeBackgroundWithSlide(initialBackground);
 
-    showHoverCircles();
+    // Remove thank you message if it exists
+    const thankYouMessage = document.querySelector(".thank-you-message");
+    if (thankYouMessage) {
+      thankYouMessage.remove();
+    }
+
+    // Reattach hover listeners
+    deerAreas.forEach((area) => {
+      const circle = document.getElementById(`${area.id}-circle`);
+
+      const checkHover = (e) => {
+        const mouseX = e.pageX;
+        const mouseY = e.pageY;
+
+        if (
+          mouseX >= area.left &&
+          mouseX <= area.left + area.width &&
+          mouseY >= area.top &&
+          mouseY <= area.top + area.height
+        ) {
+          circle.classList.add("active");
+        } else {
+          circle.classList.remove("active");
+        }
+      };
+
+      const handleClick = (e) => {
+        if (!circle.classList.contains("hidden")) {
+          const mouseX = e.pageX;
+          const mouseY = e.pageY;
+
+          if (
+            mouseX >= area.left &&
+            mouseX <= area.left + area.width &&
+            mouseY >= area.top &&
+            mouseY <= area.top + area.height
+          ) {
+            const categoryButton = document.querySelector(
+              `.category-button[data-category="${area.category}"]`
+            );
+            if (categoryButton) {
+              categoryButton.click();
+              removeAllListeners();
+            }
+          }
+        }
+      };
+
+      document.addEventListener("mousemove", checkHover);
+      document.addEventListener("click", handleClick);
+      hoverListeners.push(checkHover, handleClick);
+      circle.classList.remove("hidden");
+    });
 
     // Hide the reset modal
     resetModal.classList.add("hidden");
@@ -570,6 +646,12 @@ document.addEventListener("DOMContentLoaded", () => {
             categoriesContainer.classList.add("hidden");
             hideHoverCircles(); // Hide hover circles when the final image is shown
             document.getElementById("welcome-message").classList.add("hidden");
+            // Create and show thank you message
+            const thankYouMessage = document.createElement("div");
+            thankYouMessage.className = "thank-you-message";
+            thankYouMessage.textContent =
+              "Thank you for taking good care of me";
+            document.body.appendChild(thankYouMessage);
           });
         } else {
           changeBackgroundWithSlide(
@@ -653,6 +735,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 document
                   .getElementById("welcome-message")
                   .classList.add("hidden");
+                // Create and show thank you message
+                const thankYouMessage = document.createElement("div");
+                thankYouMessage.className = "thank-you-message";
+                thankYouMessage.textContent =
+                  "Thank you for taking good care of me";
+                document.body.appendChild(thankYouMessage);
               });
             } else {
               changeBackgroundWithSlide(
@@ -708,6 +796,12 @@ document.addEventListener("DOMContentLoaded", () => {
               document
                 .getElementById("welcome-message")
                 .classList.add("hidden");
+              // Create and show thank you message
+              const thankYouMessage = document.createElement("div");
+              thankYouMessage.className = "thank-you-message";
+              thankYouMessage.textContent =
+                "Thank you for taking good care of me";
+              document.body.appendChild(thankYouMessage);
             });
           } else {
             changeBackgroundWithSlide(
@@ -776,6 +870,12 @@ document.addEventListener("DOMContentLoaded", () => {
             tasksContainer.classList.add("hidden");
             categoriesContainer.classList.add("hidden");
             document.getElementById("welcome-message").classList.add("hidden");
+            // Create and show thank you message
+            const thankYouMessage = document.createElement("div");
+            thankYouMessage.className = "thank-you-message";
+            thankYouMessage.textContent =
+              "Thank you for taking good care of me";
+            document.body.appendChild(thankYouMessage);
           });
         } else {
           changeBackgroundWithSlide(
