@@ -1,14 +1,12 @@
 # Nara - A Bright Start to Your Day🦌
 
-<img src="https://github.com/luyiZhang818/Nara-Chrome-Extension/blob/main/assets/original.jpg" alt="Nara" style="zoom:80%;" />
-
 ## Introduction
 
-Nara is a Chrome extension designed to provide users with a refreshing and joyful start to their day. In a world where productivity tools often add to the stress, Nara focuses on mental relief and simple, feel-good activities. It aims to combat the habit of doom-scrolling and offers a gentle, uplifting experience every time you open a new tab. 🌿
+Nara is a Chrome extension designed to provide users with a refreshing and joyful start to their day. In a world where productivity tools often add to the stress, Nara focuses on mental relief and simple, feel-good activities. It aims to combat the habit of "bed rotting" and offers a gentle, uplifting experience every time you open a new tab. 🌿
 
 ## Why Nara? 🤔
 
-- **Mental Relief**: 19.86% of adults struggle with mental health issues, often exacerbated by the pressure to be constantly productive. Nara offers a break from this cycle. 🧘‍♀️
+- **Mental Relief**: Around 20% of adults struggle with mental health issues, often exacerbated by the pressure to be constantly productive. Many doom scroll in bed because they feel overwhelmed with starting the day. Nara offers a break from this cycle. 🧘‍♀️
 - **Spark Joy**: Instead of overwhelming to-do lists, Nara encourages small, joyful tasks that make you feel good. 🌸
 - **Simple and Beautiful**: With a clean and aesthetically pleasing interface, Nara makes your daily routine a little brighter. 🎋
 
@@ -31,6 +29,8 @@ Nara is a Chrome extension designed to provide users with a refreshing and joyfu
 2. **Generate Tasks**: Nara creates a list of five simple to-do items based on your selection. 📝
 3. **Interactive Tasks**: Tasks are displayed dynamically, allowing you to delete, toggle, or reorder them as needed. ⌨️
 4. **Earn Rewards**: Complete tasks and receive rewards, making your day a little more satisfying. 💡
+
+Every day is a new day to feel better. 
 
 ## Future Plans 🚀
 
