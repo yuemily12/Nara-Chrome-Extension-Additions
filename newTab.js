@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoriesContainer = document.getElementById("categories-container");
   const tasksContainer = document.getElementById("tasks-container");
   const taskList = document.getElementById("task-list");
+  const resetButton = document.getElementById("reset-button");
+  const resetModal = document.getElementById("reset-modal");
+  const resetYesButton = document.getElementById("reset-yes");
+  const resetNoButton = document.getElementById("reset-no");
 
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
@@ -306,6 +310,33 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       renderTasks(tasks, 0, "self");
     }
+  });
+
+  // Show the reset modal when the reset button is clicked
+  resetButton.addEventListener("click", () => {
+    resetModal.classList.remove("hidden");
+  });
+
+  // Hide the reset modal when "No" is clicked
+  resetNoButton.addEventListener("click", () => {
+    resetModal.classList.add("hidden");
+  });
+
+  // Reset everything when "Yes" is clicked
+  resetYesButton.addEventListener("click", () => {
+    // Clear the state in chrome.storage.local
+    chrome.storage.local.set({ state: null }, () => {
+      console.log("State reset to initial state.");
+    });
+
+    // Reset the UI to the initial state
+    tasksContainer.classList.add("hidden");
+    categoriesContainer.classList.remove("hidden");
+    document.getElementById("welcome-message").classList.remove("hidden");
+    changeBackgroundWithSlide(initialBackground);
+
+    // Hide the reset modal
+    resetModal.classList.add("hidden");
   });
 
   function updateBackgroundState(tasks, selectedCategory) {
