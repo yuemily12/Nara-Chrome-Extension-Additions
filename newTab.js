@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 150,
       height: 250,
       circleImage: "assets/circle_selfcare.png",
+      category: "daily",
     },
     {
       id: "deer2",
@@ -75,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 100,
       height: 200,
       circleImage: "assets/circle_lovedones.png",
+      category: "friends",
     },
     {
       id: "deer3",
@@ -83,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 100,
       height: 200,
       circleImage: "assets/circle_pets.png",
+      category: "pet",
     },
     {
       id: "deer4",
@@ -91,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 120,
       height: 220,
       circleImage: "assets/circle_thehome.png",
+      category: "home",
     },
     {
       id: "deer5",
@@ -99,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       width: 90,
       height: 160,
       circleImage: "assets/circle_themind.png",
+      category: "mind",
     },
   ];
 
@@ -128,6 +133,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     document.addEventListener("mousemove", checkHover);
+
+    // click for deer images
+    document.addEventListener("click", (e) => {
+      const mouseX = e.pageX;
+      const mouseY = e.pageY;
+
+      if (
+        mouseX >= area.left &&
+        mouseX <= area.left + area.width &&
+        mouseY >= area.top &&
+        mouseY <= area.top + area.height
+      ) {
+        const categoryButton = document.querySelector(
+          `.category-button[data-category="${area.category}"]`
+        );
+        if (categoryButton) {
+          categoryButton.click();
+        }
+      }
+    });
   });
 
   // Preload image function
