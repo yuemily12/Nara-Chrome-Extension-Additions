@@ -112,9 +112,9 @@ body {
 /* Tasks container */
 #tasks-container {
     position: fixed;
-    top: 40px;
-    left: 40px;
-    background: rgba(255, 255, 255, 0.7);
+    top: 120px;
+    left: 220px;
+    background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-radius: 24px;
@@ -151,7 +151,7 @@ body {
 }
 
 .draggable {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.7);
     border-radius: 12px;
     padding: 16px;
     display: flex;
@@ -191,6 +191,32 @@ input[type="checkbox"] {
     height: 20px;
     border-radius: 6px;
     cursor: pointer;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    appearance: none;
+    border: 2px solid #9CA3AF;
+    position: relative;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #0c9623;
+    border-color: #0c9623;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 /* Sortable classes */
