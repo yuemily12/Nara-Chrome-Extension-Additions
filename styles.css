@@ -283,3 +283,46 @@ input[type="checkbox"]:checked+.task-text {
 .drag-handle:hover .line {
     background-color: #6B7280;
 }
+
+
+/* New by Joe 
+#deer1-circle {
+    top: 430px;
+    left: 320px;
+    width: 150px;
+    height: 250px;
+    background-image: url("assets/circle_selfcare.png");
+  }
+  
+  #deer2-circle {
+    top: 460px;
+    left: 1400px;
+    width: 100px;
+    height: 200px;
+    background-image: url("assets/circle_lovedones.png");
+  }
+  
+  #deer3-circle {
+    top: 630px;
+    left: 1310px;
+    width: 100px;
+    height: 200px;
+    background-image: url("assets/circle_pets.png");
+  }
+  
+  #deer4-circle {
+    top: 520px;
+    left: 790px;
+    width: 120px;
+    height: 220px;
+    background-image: url("assets/circle_thehome.png");
+  }
+  
+  #deer5-circle {
+    top: 550px;
+    left: 1080px;
+    width: 90px;
+    height: 160px;
+    background-image: url("assets/circle_themind.png");
+  }
+  */
