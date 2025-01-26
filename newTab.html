@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Tracker</title>
     <link rel="stylesheet" href="styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Slackside+One&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Slackside+One&display=swap"
+      rel="stylesheet"
     />
-
+  </head>
   <body>
     <h1 id="welcome-message">Who do you want to care for today?</h1>
 
@@ -34,8 +36,34 @@
     </div> 
   
 
+    <!-- Hover Circles -->
+    <div id="deer1-circle" class="deer-circle"></div>
+    <div id="deer2-circle" class="deer-circle"></div>
+    <div id="deer3-circle" class="deer-circle"></div>
+    <div id="deer4-circle" class="deer-circle"></div>
+    <div id="deer5-circle" class="deer-circle"></div>
+
     <div id="tasks-container" class="hidden">
       <ul id="task-list"></ul>
+    </div>
+
+    <!-- Reset Button -->
+    <button id="reset-button">
+      <span class="reset-icon">+</span>
+    </button>
+
+    <!-- Confirmation Modal -->
+    <div id="reset-modal" class="hidden">
+      <div class="modal-content">
+        <p>
+          Are you sure you want to reset? This will erase all of your current
+          tasks.
+        </p>
+        <div class="modal-buttons">
+          <button id="reset-yes">Yes</button>
+          <button id="reset-no">No</button>
+        </div>
+      </div>
     </div>
 
     <script src="scripts/Sortable.min.js"></script>

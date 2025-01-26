@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoriesContainer = document.getElementById("categories-container");
   const tasksContainer = document.getElementById("tasks-container");
   const taskList = document.getElementById("task-list");
+  const resetButton = document.getElementById("reset-button");
+  const resetModal = document.getElementById("reset-modal");
+  const resetYesButton = document.getElementById("reset-yes");
+  const resetNoButton = document.getElementById("reset-no");
 
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
@@ -53,6 +57,78 @@ document.addEventListener("DOMContentLoaded", () => {
       "assets/E5.jpg",
     ],
   };
+
+  // Hover effect logic
+  const deerAreas = [
+    {
+      id: "deer1",
+      top: 430,
+      left: 320,
+      width: 150,
+      height: 250,
+      circleImage: "assets/circle_selfcare.png",
+    },
+    {
+      id: "deer2",
+      top: 460,
+      left: 1400,
+      width: 100,
+      height: 200,
+      circleImage: "assets/circle_lovedones.png",
+    },
+    {
+      id: "deer3",
+      top: 630,
+      left: 1310,
+      width: 100,
+      height: 200,
+      circleImage: "assets/circle_pets.png",
+    },
+    {
+      id: "deer4",
+      top: 520,
+      left: 790,
+      width: 120,
+      height: 220,
+      circleImage: "assets/circle_thehome.png",
+    },
+    {
+      id: "deer5",
+      top: 550,
+      left: 1080,
+      width: 90,
+      height: 160,
+      circleImage: "assets/circle_themind.png",
+    },
+  ];
+
+  deerAreas.forEach((area) => {
+    const circle = document.getElementById(`${area.id}-circle`);
+    circle.style.backgroundImage = `url(${area.circleImage})`;
+
+    const circleWidth = getComputedStyle(circle).width || "200px";
+    const size = parseInt(circleWidth);
+    circle.style.left = `${area.left + area.width / 2 - size / 2}px`;
+    circle.style.top = `${area.top + area.height / 2 - size / 2}px`;
+
+    const checkHover = (e) => {
+      const mouseX = e.pageX;
+      const mouseY = e.pageY;
+
+      if (
+        mouseX >= area.left &&
+        mouseX <= area.left + area.width &&
+        mouseY >= area.top &&
+        mouseY <= area.top + area.height
+      ) {
+        circle.classList.add("active");
+      } else {
+        circle.classList.remove("active");
+      }
+    };
+
+    document.addEventListener("mousemove", checkHover);
+  });
 
   // Preload image function
   function preloadImage(url) {
@@ -120,6 +196,22 @@ document.addEventListener("DOMContentLoaded", () => {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  // Function to hide hover circles
+  function hideHoverCircles() {
+    const hoverCircles = document.querySelectorAll(".deer-circle");
+    hoverCircles.forEach((circle) => {
+      circle.classList.add("hidden");
+    });
+  }
+
+  // Function to show hover circles
+  function showHoverCircles() {
+    const hoverCircles = document.querySelectorAll(".deer-circle");
+    hoverCircles.forEach((circle) => {
+      circle.classList.remove("hidden");
+    });
   }
 
   // Updated hardcoded tasks with new categories and random selection
@@ -233,12 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ).then(() => {
           tasksContainer.classList.add("hidden");
           categoriesContainer.classList.add("hidden");
+          hideHoverCircles(); // Hide hover circles when the final image is shown
           document.getElementById("welcome-message").classList.add("hidden");
         });
       } else {
         renderTasks(tasks, backgroundIndex, selectedCategory);
         if (categoriesHidden) {
           categoriesContainer.classList.add("hidden");
+          hideHoverCircles(); // Hide hover circles when categories are hidden
           document.getElementById("welcome-message").classList.add("hidden");
         }
         changeBackgroundWithSlide(
@@ -248,6 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       categoriesContainer.classList.remove("hidden");
       document.getElementById("welcome-message").classList.remove("hidden");
+      showHoverCircles(); // Show hover circles in the initial state
       changeBackgroundWithSlide(initialBackground);
     }
   });
@@ -255,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
   categoriesContainer.addEventListener("click", (event) => {
     if (event.target.classList.contains("category-button")) {
       const category = event.target.dataset.category;
+      hideHoverCircles();
 
       if (category === "others") {
         const customTask = prompt("Enter a custom task:");
@@ -285,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       categoriesContainer.classList.add("hidden");
+      hideHoverCircles();
       document.getElementById("welcome-message").classList.add("hidden");
     }
   });
@@ -306,6 +403,35 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       renderTasks(tasks, 0, "self");
     }
+  });
+
+  // Show the reset modal when the reset button is clicked
+  resetButton.addEventListener("click", () => {
+    resetModal.classList.remove("hidden");
+  });
+
+  // Hide the reset modal when "No" is clicked
+  resetNoButton.addEventListener("click", () => {
+    resetModal.classList.add("hidden");
+  });
+
+  // Reset everything when "Yes" is clicked
+  resetYesButton.addEventListener("click", () => {
+    // Clear the state in chrome.storage.local
+    chrome.storage.local.set({ state: null }, () => {
+      console.log("State reset to initial state.");
+    });
+
+    // Reset the UI to the initial state
+    tasksContainer.classList.add("hidden");
+    categoriesContainer.classList.remove("hidden");
+    document.getElementById("welcome-message").classList.remove("hidden");
+    changeBackgroundWithSlide(initialBackground);
+
+    showHoverCircles();
+
+    // Hide the reset modal
+    resetModal.classList.add("hidden");
   });
 
   function updateBackgroundState(tasks, selectedCategory) {
@@ -368,9 +494,9 @@ document.addEventListener("DOMContentLoaded", () => {
       taskItem.classList.add("draggable");
       taskItem.innerHTML = `
         <input type="checkbox" ${task.completed ? "checked" : ""} />
-        <input type="text" value="${
+        <div class="task-text" contenteditable="true" placeholder="New task">${
           task.text
-        }" placeholder="New task" class="task-text" />
+        }</div>
         ${
           task.text && !task.completed
             ? `<button class="delete-task"></button>`
@@ -417,6 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ).then(() => {
             tasksContainer.classList.add("hidden");
             categoriesContainer.classList.add("hidden");
+            hideHoverCircles(); // Hide hover circles when the final image is shown
             document.getElementById("welcome-message").classList.add("hidden");
           });
         } else {
@@ -461,9 +588,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const taskTextInput = taskItem.querySelector(".task-text");
-      taskTextInput.addEventListener("change", () => {
+      taskTextInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault(); // Prevent the default behavior (new line)
+          taskTextInput.blur(); // Exit edit mode
+        }
+      });
+
+      taskTextInput.addEventListener("input", () => {
         const originalIndex = tasks.indexOf(task);
-        tasks[originalIndex].text = taskTextInput.value;
+        tasks[originalIndex].text = taskTextInput.textContent;
 
         const existingDeleteButton = taskItem.querySelector(".delete-task");
 
