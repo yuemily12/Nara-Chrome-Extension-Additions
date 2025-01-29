@@ -316,9 +316,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const handleMouseMove = (e) => {
         if (checkHover(e, area)) {
-          circle.classList.add("active");
+          const circle = document.getElementById(`${area.id}-circle`);
+          if (circle) {
+            const originalWidth = parseFloat(area.width);
+            const originalHeight = parseFloat(area.height);
+
+            const newWidth = originalWidth * 1.7; // overlay circle 1.7x the hover area
+            const newHeight = originalHeight * 1.7;
+
+            const centerX = parseFloat(area.left) + originalWidth / 2;
+            const centerY = parseFloat(area.top) + originalHeight / 2;
+
+            const newLeft = centerX - newWidth / 2;
+            const newTop = centerY - newHeight / 2 + newHeight * 0.05; // Moves overlay 5% lower
+
+            circle.style.transition =
+              "width 0.3s ease, height 0.3s ease, left 0.3s ease, top 0.3s ease";
+            circle.style.width = `${newWidth}%`;
+            circle.style.height = `${newHeight}%`;
+            circle.style.left = `${newLeft}%`;
+            circle.style.top = `${newTop}%`;
+            circle.classList.add("active");
+          }
         } else {
-          circle.classList.remove("active");
+          const circle = document.getElementById(`${area.id}-circle`);
+          if (circle) {
+            // Remove transition before resetting to avoid unwanted shrinking effect
+            circle.style.transition = "none";
+            circle.style.width = `${area.width}`;
+            circle.style.height = `${area.height}`;
+            circle.style.left = `${area.left}`;
+            circle.style.top = `${area.top}`;
+
+            // Force reflow to apply the "instant" reset (trick to flush styles)
+            void circle.offsetWidth;
+
+            // Restore transition for future hovers
+            circle.style.transition =
+              "width 0.3s ease, height 0.3s ease, left 0.3s ease, top 0.3s ease";
+            circle.classList.remove("active");
+          }
         }
       };
 

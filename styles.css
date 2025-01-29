@@ -432,39 +432,8 @@ input[type="checkbox"]:checked+.task-text {
     transition: opacity 0.3s ease;
     width: 25vw;
     height: 25vw;
-    aspect-ratio: 1 / 1;
-    transform: translate(-50%, -50%);
 }
 
-#deer1-circle {
-    width: 23vw;
-    height: 23vw;
-}
-
-#deer2-circle {
-    width: 20vw;
-    height: 20vw;
-}
-
-#deer3-circle {
-    width: 11vw;
-    height: 11vw;
-}
-
-#deer4-circle {
-    width: 12.5vw;
-    height: 12.5vw;
-}
-
-#deer5-circle {
-    width: 17vw;
-    height: 17vw;
-}
-
-#deer6-circle {
-    width: 25vw;
-    height: 25vw;
-}
 
 .deer-circle.active {
     opacity: 1;
