@@ -29,6 +29,9 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    object-fit: cover;
+    max-width: 100vw;
+    max-height: 100vh;
     opacity: 1;
     will-change: opacity;
     transition: opacity 0.5s ease-in-out;
@@ -173,7 +176,6 @@ body {
     border: none;
     background: transparent;
     font-size: 16px;
-    text-transform: lowercase;
     color: #333;
     padding: 4px;
     font-family: 'DM Sans', sans-serif;
@@ -428,36 +430,40 @@ input[type="checkbox"]:checked+.task-text {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.3s ease;
+    width: 25vw;
+    height: 25vw;
+    aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
 }
 
 #deer1-circle {
-    width: 450px;
-    height: 450px;
+    width: 23vw;
+    height: 23vw;
 }
 
 #deer2-circle {
-    width: 400px;
-    height: 400px;
+    width: 20vw;
+    height: 20vw;
 }
 
 #deer3-circle {
-    width: 220px;
-    height: 220px;
+    width: 11vw;
+    height: 11vw;
 }
 
 #deer4-circle {
-    width: 250px;
-    height: 250px;
+    width: 12.5vw;
+    height: 12.5vw;
 }
 
 #deer5-circle {
-    width: 340px;
-    height: 340px;
+    width: 17vw;
+    height: 17vw;
 }
 
 #deer6-circle {
-    width: 500px;
-    height: 500px;
+    width: 25vw;
+    height: 25vw;
 }
 
 .deer-circle.active {
