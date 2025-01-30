@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetYesButton = document.getElementById("reset-yes");
   const resetNoButton = document.getElementById("reset-no");
 
+  const originalImageWidth = 1456;
+  const originalImageHeight = 816;
+
   let hoverListeners = [];
   let sortableInstance = null;
   let deerAreas = [];
@@ -76,8 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const baseDeerAreas = [
     {
       id: "deer1",
-      baseTop: 58, // percentage from top
-      baseLeft: 21, // percentage from left
+      baseTop: 55, // percentage from top
+      baseLeft: 25, // percentage from left
       baseWidth: 12,
       baseHeight: 25,
       circleImage: "assets/circle_selfcare.png",
@@ -85,8 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer2",
-      baseTop: 56,
-      baseLeft: 74,
+      baseTop: 54,
+      baseLeft: 85,
       baseWidth: 10,
       baseHeight: 23,
       circleImage: "assets/circle_lovedones.png",
@@ -94,8 +97,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer3",
-      baseTop: 70,
-      baseLeft: 66,
+      baseTop: 69,
+      baseLeft: 76,
       baseWidth: 6,
       baseHeight: 12,
       circleImage: "assets/circle_pets.png",
@@ -103,8 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer4",
-      baseTop: 60,
-      baseLeft: 41.5,
+      baseTop: 59,
+      baseLeft: 47,
       baseWidth: 8,
       baseHeight: 17,
       circleImage: "assets/circle_thehome.png",
@@ -112,8 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer5",
-      baseTop: 62,
-      baseLeft: 57,
+      baseTop: 61,
+      baseLeft: 65,
       baseWidth: 8,
       baseHeight: 16,
       circleImage: "assets/circle_themind.png",
@@ -121,8 +124,8 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {
       id: "deer6",
-      baseTop: 0.5,
-      baseLeft: 60,
+      baseTop: 3,
+      baseLeft: 70,
       baseWidth: 15,
       baseHeight: 15,
       circleImage: "assets/circle_somethingelse.png",
@@ -237,61 +240,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 3. Hover-related Functions
   function calculateResponsivePositions() {
-    const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
-    const currentAspectRatio = viewport.width / viewport.height;
-    const baseAspectRatio = 16 / 9;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const viewportAspect = viewportWidth / viewportHeight;
+    const imageAspect = originalImageWidth / originalImageHeight;
 
-    const adjustmentFactor = currentAspectRatio / baseAspectRatio;
+    let scaledWidth, scaledHeight, offsetX, offsetY;
 
-    return baseDeerAreas.map((deer) => ({
-      id: deer.id,
-      top: `${Math.min(
-        Math.max(
-          currentAspectRatio < baseAspectRatio
-            ? deer.baseTop / adjustmentFactor
-            : deer.baseTop,
-          5
-        ),
-        95
-      )}%`,
-      left: `${Math.min(
-        Math.max(
-          currentAspectRatio > baseAspectRatio
-            ? deer.baseLeft * adjustmentFactor
-            : deer.baseLeft,
-          5
-        ),
-        95
-      )}%`,
-      width: `${deer.baseWidth}%`,
-      height: `${deer.baseHeight}%`,
-      circleImage: deer.circleImage,
-      category: deer.category,
-    }));
+    // Calculate how the image is actually rendered
+    if (viewportAspect > imageAspect) {
+      // Image scaled to viewport width (cropped vertically)
+      scaledWidth = viewportWidth;
+      scaledHeight = viewportWidth / imageAspect;
+      offsetX = 0;
+      offsetY = (scaledHeight - viewportHeight) / 2;
+    } else {
+      // Image scaled to viewport height (cropped horizontally)
+      scaledHeight = viewportHeight;
+      scaledWidth = viewportHeight * imageAspect;
+      offsetY = 0;
+      offsetX = (scaledWidth - viewportWidth) / 2;
+    }
+
+    return baseDeerAreas.map((deer) => {
+      // Convert original percentages to pixels in scaled image
+      const originalLeft = (deer.baseLeft / 100) * originalImageWidth;
+      const originalTop = (deer.baseTop / 100) * originalImageHeight;
+      const originalWidth = (deer.baseWidth / 100) * originalImageWidth;
+      const originalHeight = (deer.baseHeight / 100) * originalImageHeight;
+
+      // Scale coordinates to rendered image size
+      const scaledLeft = (originalLeft / originalImageWidth) * scaledWidth;
+      const scaledTop = (originalTop / originalImageHeight) * scaledHeight;
+      const scaledWidthPx = (originalWidth / originalImageWidth) * scaledWidth;
+      const scaledHeightPx =
+        (originalHeight / originalImageHeight) * scaledHeight;
+
+      // Convert to viewport coordinates (account for cropping)
+      const viewportLeft = scaledLeft - offsetX;
+      const viewportTop = scaledTop - offsetY;
+
+      // Calculate visible area bounds
+      const visibleLeft = Math.max(viewportLeft, 0);
+      const visibleTop = Math.max(viewportTop, 0);
+      const visibleRight = Math.min(
+        viewportLeft + scaledWidthPx,
+        viewportWidth
+      );
+      const visibleBottom = Math.min(
+        viewportTop + scaledHeightPx,
+        viewportHeight
+      );
+
+      return {
+        id: deer.id,
+        visible: visibleLeft < visibleRight && visibleTop < visibleBottom,
+        left: visibleLeft,
+        top: visibleTop,
+        width: visibleRight - visibleLeft,
+        height: visibleBottom - visibleTop,
+        circleImage: deer.circleImage,
+        category: deer.category,
+      };
+    });
   }
 
   function checkHover(e, area) {
-    const rect = document.body.getBoundingClientRect();
-    const viewportWidth = rect.width;
-    const viewportHeight = rect.height;
+    if (!area.visible) return false;
 
-    // Convert current percentage positions to pixels
-    const areaLeft = (parseFloat(area.left) / 100) * viewportWidth;
-    const areaTop = (parseFloat(area.top) / 100) * viewportHeight;
-    const areaWidth = (parseFloat(area.width) / 100) * viewportWidth;
-    const areaHeight = (parseFloat(area.height) / 100) * viewportHeight;
-
-    const mouseX = e.pageX;
-    const mouseY = e.pageY;
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
 
     return (
-      mouseX >= areaLeft &&
-      mouseX <= areaLeft + areaWidth &&
-      mouseY >= areaTop &&
-      mouseY <= areaTop + areaHeight
+      mouseX >= area.left &&
+      mouseX <= area.left + area.width &&
+      mouseY >= area.top &&
+      mouseY <= area.top + area.height
     );
   }
 
@@ -311,54 +335,50 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!circle) return;
 
       circle.style.backgroundImage = `url(${area.circleImage})`;
-      circle.style.left = area.left;
-      circle.style.top = area.top;
 
       const handleMouseMove = (e) => {
         if (checkHover(e, area)) {
           const circle = document.getElementById(`${area.id}-circle`);
           if (circle) {
-            const originalWidth = parseFloat(area.width);
-            const originalHeight = parseFloat(area.height);
+            const originalWidth = area.width; // Already in pixels
+            const originalHeight = area.height; // Already in pixels
 
-            const newWidth = originalWidth * 1.7; // overlay circle 1.7x the hover area
+            const newWidth = originalWidth * 1.7;
             const newHeight = originalHeight * 1.7;
 
-            const centerX = parseFloat(area.left) + originalWidth / 2;
-            const centerY = parseFloat(area.top) + originalHeight / 2;
+            // Calculate positions using PIXELS
+            const centerX = area.left + originalWidth / 2;
+            const centerY = area.top + originalHeight / 2;
 
             const newLeft = centerX - newWidth / 2;
-            const newTop = centerY - newHeight / 2 + newHeight * 0.05; // Moves overlay 5% lower
+            const newTop = centerY - newHeight / 2 + newHeight * 0.05;
 
             circle.style.transition =
               "width 0.3s ease, height 0.3s ease, left 0.3s ease, top 0.3s ease";
-            circle.style.width = `${newWidth}%`;
-            circle.style.height = `${newHeight}%`;
-            circle.style.left = `${newLeft}%`;
-            circle.style.top = `${newTop}%`;
+            circle.style.width = `${newWidth}px`; // Changed to px
+            circle.style.height = `${newHeight}px`; // Changed to px
+            circle.style.left = `${newLeft}px`; // Changed to px
+            circle.style.top = `${newTop}px`; // Changed to px
             circle.classList.add("active");
           }
         } else {
           const circle = document.getElementById(`${area.id}-circle`);
           if (circle) {
-            // Remove transition before resetting to avoid unwanted shrinking effect
             circle.style.transition = "none";
-            circle.style.width = `${area.width}`;
-            circle.style.height = `${area.height}`;
-            circle.style.left = `${area.left}`;
-            circle.style.top = `${area.top}`;
+            // Reset to original PIXEL values
+            circle.style.width = `${area.width}px`; // Changed to px
+            circle.style.height = `${area.height}px`; // Changed to px
+            circle.style.left = `${area.left}px`; // Changed to px
+            circle.style.top = `${area.top}px`; // Changed to px
 
-            // Force reflow to apply the "instant" reset (trick to flush styles)
-            void circle.offsetWidth;
+            void circle.offsetWidth; // Force reflow
 
-            // Restore transition for future hovers
             circle.style.transition =
               "width 0.3s ease, height 0.3s ease, left 0.3s ease, top 0.3s ease";
             circle.classList.remove("active");
           }
         }
       };
-
       const handleClick = (e) => {
         if (!circle.classList.contains("hidden") && checkHover(e, area)) {
           const categoryButton = document.querySelector(
@@ -378,16 +398,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleResize() {
-    // Recalculate positions
     deerAreas = calculateResponsivePositions();
 
-    // Update circle positions
     deerAreas.forEach((area) => {
       const circle = document.getElementById(`${area.id}-circle`);
-      if (circle) {
-        circle.style.left = area.left;
-        circle.style.top = area.top;
-      }
+      if (!circle) return;
+
+      circle.style.display = area.visible ? "block" : "none";
+      circle.style.left = `${area.left}px`;
+      circle.style.top = `${area.top}px`;
+      circle.style.width = `${area.width}px`;
+      circle.style.height = `${area.height}px`;
     });
   }
 
@@ -406,10 +427,10 @@ document.addEventListener("DOMContentLoaded", () => {
       overlay.style.pointerEvents = "none";
       overlay.style.zIndex = "9999";
 
-      overlay.style.left = area.left;
-      overlay.style.top = area.top;
-      overlay.style.width = area.width;
-      overlay.style.height = area.height;
+      overlay.style.left = `${area.left}px`; // Add px
+      overlay.style.top = `${area.top}px`; // Add px
+      overlay.style.width = `${area.width}px`; // Add px
+      overlay.style.height = `${area.height}px`; // Add px
 
       const label = document.createElement("div");
       label.style.position = "absolute";
