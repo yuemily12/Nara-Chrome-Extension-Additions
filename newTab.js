@@ -632,6 +632,29 @@ document.addEventListener("DOMContentLoaded", () => {
         tasks[originalIndex].completed = checkbox.checked;
 
         if (tasks[originalIndex].completed) {
+          const encouragements = [
+            "Great job!",
+            "You’re making progress!",
+            "Keep going!",
+            "You’re amazing!",
+            "Another step forward!",
+            "Way to go!",
+            "You did it!",
+          ];
+          const bubble = document.createElement("div");
+          bubble.className = "encouragement-bubble";
+          bubble.textContent =
+            encouragements[Math.floor(Math.random() * encouragements.length)];
+          const deerArea = deerAreas.find((area) => area.category === category);
+          if (deerArea) {
+            bubble.style.left = `${deerArea.left + deerArea.width / 2}px`;
+            bubble.style.top = `${deerArea.top - 40}px`;
+          }
+          document.body.appendChild(bubble);
+          setTimeout(() => {
+            bubble.classList.add("fade-out");
+            setTimeout(() => bubble.remove(), 1000);
+          }, 2000);
           const deleteButton = taskItem.querySelector(".delete-task");
           if (deleteButton) deleteButton.remove();
         }
