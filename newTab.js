@@ -23,6 +23,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial background image with 5 deers
   const initialBackground = "assets/original.jpg";
 
+  const weeklyChallenges = [
+    "Drink 8 glasses of water each day",
+    "Take a 10-minute walk daily",
+    "Stretch for 5 minutes every morning",
+    "Write down one thing you’re grateful for",
+    "Compliment yourself in the mirror",
+    "Go to bed 30 minutes earlier",
+    "Unplug from screens 30 minutes before bed",
+  ];
+
   // Background images for each category
   const backgroundSets = {
     daily: [
@@ -236,6 +246,11 @@ document.addEventListener("DOMContentLoaded", () => {
       img.onerror = reject;
       img.src = url;
     });
+  }
+
+  function getCurrentWeeklyChallenge() {
+    const startOfEpochWeek = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7));
+    return weeklyChallenges[startOfEpochWeek % weeklyChallenges.length];
   }
 
   // 3. Hover-related Functions
@@ -600,6 +615,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const taskListElement = document.getElementById("task-list");
     taskListElement.innerHTML = "";
+
+    const weeklyChallengeContainer = document.createElement("div");
+    weeklyChallengeContainer.className = "weekly-challenge";
+
+    const challengeText = getCurrentWeeklyChallenge();
+    const isCompletedToday =
+      JSON.parse(localStorage.getItem("weeklyChallengeCompleted")) || false;
+
+    weeklyChallengeContainer.innerHTML = `
+  <label>
+    <input type="checkbox" id="weekly-challenge-checkbox" ${
+      isCompletedToday ? "checked" : ""
+    }>
+    <span>${challengeText}</span>
+  </label>
+`;
+
+    taskListElement.appendChild(weeklyChallengeContainer);
+
+    // Handle checkbox click
+    const weeklyCheckbox = document.getElementById("weekly-challenge-checkbox");
+    weeklyCheckbox.addEventListener("change", () => {
+      localStorage.setItem("weeklyChallengeCompleted", weeklyCheckbox.checked);
+      if (weeklyCheckbox.checked) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.classList.add("fade-out");
+          setTimeout(() => confetti.remove(), 1500);
+        }, 800);
+      }
+    });
 
     const sortedTasks = sortTasksByCompletion(tasks);
 

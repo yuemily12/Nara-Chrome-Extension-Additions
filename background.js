@@ -13,6 +13,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
     chrome.storage.local.set({ state: null }, () => {
       console.log("State reset at 12:00 a.m.");
     });
+    localStorage.setItem("weeklyChallengeCompleted", false);
     setMidnightAlarm(); // Reset the alarm for the next day
   }
 });
